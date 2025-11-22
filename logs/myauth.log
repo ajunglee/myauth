@@ -1,0 +1,271 @@
+2025-11-23T00:39:05.094+09:00  INFO 41599 --- [myauth] [restartedMain] com.example.myauth.MyauthApplication     : Starting MyauthApplication using Java 17.0.7 with PID 41599 (/Users/eunbumkim/Documents/practice/java/myauth/build/classes/java/main started by eunbumkim in /Users/eunbumkim/Documents/practice/java/myauth)
+2025-11-23T00:39:05.096+09:00 DEBUG 41599 --- [myauth] [restartedMain] com.example.myauth.MyauthApplication     : Running with Spring Boot v4.0.0, Spring v7.0.1
+2025-11-23T00:39:05.096+09:00  INFO 41599 --- [myauth] [restartedMain] com.example.myauth.MyauthApplication     : No active profile set, falling back to 1 default profile: "default"
+2025-11-23T00:39:05.126+09:00  INFO 41599 --- [myauth] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2025-11-23T00:39:05.126+09:00  INFO 41599 --- [myauth] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2025-11-23T00:39:05.477+09:00  INFO 41599 --- [myauth] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-11-23T00:39:05.506+09:00  INFO 41599 --- [myauth] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 25 ms. Found 2 JPA repository interfaces.
+2025-11-23T00:39:05.799+09:00  INFO 41599 --- [myauth] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 9080 (http)
+2025-11-23T00:39:05.809+09:00  INFO 41599 --- [myauth] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-11-23T00:39:05.809+09:00  INFO 41599 --- [myauth] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.14]
+2025-11-23T00:39:05.833+09:00  INFO 41599 --- [myauth] [restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 707 ms
+2025-11-23T00:39:05.904+09:00  INFO 41599 --- [myauth] [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-11-23T00:39:05.941+09:00  INFO 41599 --- [myauth] [restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 7.1.8.Final
+2025-11-23T00:39:06.201+09:00  INFO 41599 --- [myauth] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-11-23T00:39:06.223+09:00  INFO 41599 --- [myauth] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-11-23T00:39:06.337+09:00  INFO 41599 --- [myauth] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@37dac37c
+2025-11-23T00:39:06.338+09:00  INFO 41599 --- [myauth] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-11-23T00:39:06.376+09:00  WARN 41599 --- [myauth] [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-11-23T00:39:06.386+09:00  INFO 41599 --- [myauth] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:mysql://localhost:3306/mannal?useSSL=false&serverTimezone=Asia/Seoul&connectionTimeZone=Asia/Seoul&forceConnectionTimeZoneToSession=true&allowPublicKeyRetrieval=true]
+	Database driver: MySQL Connector/J
+	Database dialect: MySQLDialect
+	Database version: 8.0.33
+	Default catalog/schema: mannal/undefined
+	Autocommit mode: undefined/unknown
+	Isolation level: REPEATABLE_READ [default REPEATABLE_READ]
+	JDBC fetch size: none
+	Pool: DatasourceConnectionProviderImpl
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-11-23T00:39:06.973+09:00  INFO 41599 --- [myauth] [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-11-23T00:39:06.980+09:00  INFO 41599 --- [myauth] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-11-23T00:39:07.018+09:00  INFO 41599 --- [myauth] [restartedMain] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-11-23T00:39:07.125+09:00 DEBUG 41599 --- [myauth] [restartedMain] c.e.m.security.JwtAuthenticationFilter   : Filter 'jwtAuthenticationFilter' configured for use
+2025-11-23T00:39:07.469+09:00  WARN 41599 --- [myauth] [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-11-23T00:39:07.509+09:00  WARN 41599 --- [myauth] [restartedMain] .s.a.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 822c4c61-7de0-4d06-883f-3e07aceaaa7f
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2025-11-23T00:39:07.513+09:00  INFO 41599 --- [myauth] [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2025-11-23T00:39:07.737+09:00  INFO 41599 --- [myauth] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 9080 (http) with context path '/'
+2025-11-23T00:39:07.741+09:00  INFO 41599 --- [myauth] [restartedMain] com.example.myauth.MyauthApplication     : Started MyauthApplication in 2.904 seconds (process running for 3.209)
+2025-11-23T00:39:41.457+09:00  INFO 41599 --- [myauth] [http-nio-9080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-11-23T00:39:41.457+09:00  INFO 41599 --- [myauth] [http-nio-9080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-11-23T00:39:41.461+09:00  INFO 41599 --- [myauth] [http-nio-9080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 3 ms
+2025-11-23T02:21:48.360+09:00  INFO 47535 --- [myauth] [restartedMain] com.example.myauth.MyauthApplication     : Starting MyauthApplication using Java 17.0.7 with PID 47535 (/Users/eunbumkim/Documents/practice/java/myauth/build/classes/java/main started by eunbumkim in /Users/eunbumkim/Documents/practice/java/myauth)
+2025-11-23T02:21:48.361+09:00 DEBUG 47535 --- [myauth] [restartedMain] com.example.myauth.MyauthApplication     : Running with Spring Boot v4.0.0, Spring v7.0.1
+2025-11-23T02:21:48.362+09:00  INFO 47535 --- [myauth] [restartedMain] com.example.myauth.MyauthApplication     : No active profile set, falling back to 1 default profile: "default"
+2025-11-23T02:21:48.389+09:00  INFO 47535 --- [myauth] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2025-11-23T02:21:48.389+09:00  INFO 47535 --- [myauth] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2025-11-23T02:21:48.730+09:00  INFO 47535 --- [myauth] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-11-23T02:21:48.758+09:00  INFO 47535 --- [myauth] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 24 ms. Found 2 JPA repository interfaces.
+2025-11-23T02:21:49.066+09:00  INFO 47535 --- [myauth] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 9080 (http)
+2025-11-23T02:21:49.075+09:00  INFO 47535 --- [myauth] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-11-23T02:21:49.076+09:00  INFO 47535 --- [myauth] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.14]
+2025-11-23T02:21:49.095+09:00  INFO 47535 --- [myauth] [restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 705 ms
+2025-11-23T02:21:49.160+09:00  INFO 47535 --- [myauth] [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-11-23T02:21:49.194+09:00  INFO 47535 --- [myauth] [restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 7.1.8.Final
+2025-11-23T02:21:49.470+09:00  INFO 47535 --- [myauth] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-11-23T02:21:49.492+09:00  INFO 47535 --- [myauth] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-11-23T02:21:49.607+09:00  INFO 47535 --- [myauth] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@2102d55c
+2025-11-23T02:21:49.609+09:00  INFO 47535 --- [myauth] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-11-23T02:21:49.643+09:00  WARN 47535 --- [myauth] [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-11-23T02:21:49.657+09:00  INFO 47535 --- [myauth] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:mysql://localhost:3306/mannal?useSSL=false&serverTimezone=Asia/Seoul&connectionTimeZone=Asia/Seoul&forceConnectionTimeZoneToSession=true&allowPublicKeyRetrieval=true]
+	Database driver: MySQL Connector/J
+	Database dialect: MySQLDialect
+	Database version: 8.0.33
+	Default catalog/schema: mannal/undefined
+	Autocommit mode: undefined/unknown
+	Isolation level: REPEATABLE_READ [default REPEATABLE_READ]
+	JDBC fetch size: none
+	Pool: DatasourceConnectionProviderImpl
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-11-23T02:21:50.236+09:00  INFO 47535 --- [myauth] [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-11-23T02:21:50.241+09:00  INFO 47535 --- [myauth] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-11-23T02:21:50.279+09:00  INFO 47535 --- [myauth] [restartedMain] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-11-23T02:21:50.386+09:00 DEBUG 47535 --- [myauth] [restartedMain] c.e.m.security.JwtAuthenticationFilter   : Filter 'jwtAuthenticationFilter' configured for use
+2025-11-23T02:21:50.715+09:00  WARN 47535 --- [myauth] [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-11-23T02:21:50.755+09:00  INFO 47535 --- [myauth] [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2025-11-23T02:21:50.986+09:00  INFO 47535 --- [myauth] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 9080 (http) with context path '/'
+2025-11-23T02:21:50.990+09:00  INFO 47535 --- [myauth] [restartedMain] com.example.myauth.MyauthApplication     : Started MyauthApplication in 2.9 seconds (process running for 3.183)
+2025-11-23T02:22:07.462+09:00  INFO 47535 --- [myauth] [http-nio-9080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-11-23T02:22:07.462+09:00  INFO 47535 --- [myauth] [http-nio-9080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-11-23T02:22:07.465+09:00  INFO 47535 --- [myauth] [http-nio-9080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 3 ms
+2025-11-23T02:22:44.791+09:00  INFO 47535 --- [myauth] [http-nio-9080-exec-2] c.e.myauth.controller.AuthController     : 로그인 요청 (loginEx): test2@example.com
+2025-11-23T02:22:44.793+09:00 DEBUG 47535 --- [myauth] [http-nio-9080-exec-2] c.e.myauth.util.ClientTypeDetector       : 웹 클라이언트로 간주 (기본값)
+2025-11-23T02:22:44.793+09:00 DEBUG 47535 --- [myauth] [http-nio-9080-exec-2] c.e.myauth.util.ClientTypeDetector       : 웹 클라이언트로 간주 (기본값)
+2025-11-23T02:22:44.793+09:00  INFO 47535 --- [myauth] [http-nio-9080-exec-2] c.e.myauth.controller.AuthController     : 감지된 클라이언트 타입: WEB
+2025-11-23T02:22:44.793+09:00  INFO 47535 --- [myauth] [http-nio-9080-exec-2] c.e.myauth.util.ClientTypeDetector       : === 클라이언트 정보 ===
+2025-11-23T02:22:44.793+09:00  INFO 47535 --- [myauth] [http-nio-9080-exec-2] c.e.myauth.util.ClientTypeDetector       : X-Client-Type: null
+2025-11-23T02:22:44.793+09:00  INFO 47535 --- [myauth] [http-nio-9080-exec-2] c.e.myauth.util.ClientTypeDetector       : User-Agent: curl/8.7.1
+2025-11-23T02:22:44.793+09:00 DEBUG 47535 --- [myauth] [http-nio-9080-exec-2] c.e.myauth.util.ClientTypeDetector       : 웹 클라이언트로 간주 (기본값)
+2025-11-23T02:22:44.793+09:00  INFO 47535 --- [myauth] [http-nio-9080-exec-2] c.e.myauth.util.ClientTypeDetector       : 판단 결과: WEB
+2025-11-23T02:22:44.793+09:00  INFO 47535 --- [myauth] [http-nio-9080-exec-2] c.e.myauth.util.ClientTypeDetector       : ======================
+2025-11-23T02:22:44.807+09:00  INFO 47535 --- [myauth] [http-nio-9080-exec-2] com.example.myauth.service.AuthService   : 로그인 시도 (loginEx): test2@example.com
+2025-11-23T02:22:44.807+09:00 DEBUG 47535 --- [myauth] [http-nio-9080-exec-2] c.e.m.security.CustomUserDetailsService  : 사용자 로드 시도: test2@example.com
+2025-11-23T02:22:44.902+09:00 DEBUG 47535 --- [myauth] [http-nio-9080-exec-2] c.e.m.security.CustomUserDetailsService  : 사용자 로드 성공: test2@example.com, 상태: ACTIVE, 활성: true
+2025-11-23T02:22:45.051+09:00  INFO 47535 --- [myauth] [http-nio-9080-exec-2] com.example.myauth.service.AuthService   : JWT 토큰 생성 완료 (loginEx): test2@example.com
+2025-11-23T02:22:45.081+09:00  INFO 47535 --- [myauth] [http-nio-9080-exec-2] com.example.myauth.service.AuthService   : Refresh Token DB 저장 완료 (loginEx): test2@example.com
+2025-11-23T02:22:45.082+09:00  INFO 47535 --- [myauth] [http-nio-9080-exec-2] com.example.myauth.service.AuthService   : 로그인 성공 (loginEx): test2@example.com
+2025-11-23T02:22:45.092+09:00  INFO 47535 --- [myauth] [http-nio-9080-exec-2] c.e.myauth.controller.AuthController     : 웹 클라이언트 감지 → Refresh Token을 HTTP-only 쿠키로 설정
+2025-11-23T02:22:45.093+09:00  INFO 47535 --- [myauth] [http-nio-9080-exec-2] c.e.myauth.controller.AuthController     : Refresh Token을 쿠키에 설정 완료
+2025-11-23T02:22:45.093+09:00  INFO 47535 --- [myauth] [http-nio-9080-exec-2] c.e.myauth.controller.AuthController     : 응답 바디에서 Refresh Token 제거 (보안 강화)
+2025-11-23T02:22:45.094+09:00  INFO 47535 --- [myauth] [http-nio-9080-exec-2] c.e.myauth.controller.AuthController     : 로그인 성공 (loginEx): test2@example.com, 클라이언트: WEB
+2025-11-23T02:22:58.867+09:00  INFO 47535 --- [myauth] [http-nio-9080-exec-4] c.e.myauth.controller.AuthController     : 로그인 요청 (loginEx): test2@example.com
+2025-11-23T02:22:58.868+09:00 DEBUG 47535 --- [myauth] [http-nio-9080-exec-4] c.e.myauth.util.ClientTypeDetector       : 모바일 앱 감지 (X-Client-Type 헤더)
+2025-11-23T02:22:58.868+09:00 DEBUG 47535 --- [myauth] [http-nio-9080-exec-4] c.e.myauth.util.ClientTypeDetector       : 모바일 앱 감지 (X-Client-Type 헤더)
+2025-11-23T02:22:58.868+09:00  INFO 47535 --- [myauth] [http-nio-9080-exec-4] c.e.myauth.controller.AuthController     : 감지된 클라이언트 타입: MOBILE
+2025-11-23T02:22:58.868+09:00  INFO 47535 --- [myauth] [http-nio-9080-exec-4] c.e.myauth.util.ClientTypeDetector       : === 클라이언트 정보 ===
+2025-11-23T02:22:58.868+09:00  INFO 47535 --- [myauth] [http-nio-9080-exec-4] c.e.myauth.util.ClientTypeDetector       : X-Client-Type: mobile-app
+2025-11-23T02:22:58.868+09:00  INFO 47535 --- [myauth] [http-nio-9080-exec-4] c.e.myauth.util.ClientTypeDetector       : User-Agent: curl/8.7.1
+2025-11-23T02:22:58.868+09:00 DEBUG 47535 --- [myauth] [http-nio-9080-exec-4] c.e.myauth.util.ClientTypeDetector       : 모바일 앱 감지 (X-Client-Type 헤더)
+2025-11-23T02:22:58.868+09:00  INFO 47535 --- [myauth] [http-nio-9080-exec-4] c.e.myauth.util.ClientTypeDetector       : 판단 결과: MOBILE
+2025-11-23T02:22:58.868+09:00  INFO 47535 --- [myauth] [http-nio-9080-exec-4] c.e.myauth.util.ClientTypeDetector       : ======================
+2025-11-23T02:22:58.873+09:00  INFO 47535 --- [myauth] [http-nio-9080-exec-4] com.example.myauth.service.AuthService   : 로그인 시도 (loginEx): test2@example.com
+2025-11-23T02:22:58.873+09:00 DEBUG 47535 --- [myauth] [http-nio-9080-exec-4] c.e.m.security.CustomUserDetailsService  : 사용자 로드 시도: test2@example.com
+2025-11-23T02:22:58.881+09:00 DEBUG 47535 --- [myauth] [http-nio-9080-exec-4] c.e.m.security.CustomUserDetailsService  : 사용자 로드 성공: test2@example.com, 상태: ACTIVE, 활성: true
+2025-11-23T02:22:58.965+09:00  INFO 47535 --- [myauth] [http-nio-9080-exec-4] com.example.myauth.service.AuthService   : JWT 토큰 생성 완료 (loginEx): test2@example.com
+2025-11-23T02:22:58.972+09:00  INFO 47535 --- [myauth] [http-nio-9080-exec-4] com.example.myauth.service.AuthService   : Refresh Token DB 저장 완료 (loginEx): test2@example.com
+2025-11-23T02:22:58.973+09:00  INFO 47535 --- [myauth] [http-nio-9080-exec-4] com.example.myauth.service.AuthService   : 로그인 성공 (loginEx): test2@example.com
+2025-11-23T02:22:58.976+09:00  INFO 47535 --- [myauth] [http-nio-9080-exec-4] c.e.myauth.controller.AuthController     : 모바일 클라이언트 감지 → Refresh Token을 JSON 응답에 포함
+2025-11-23T02:22:58.976+09:00  INFO 47535 --- [myauth] [http-nio-9080-exec-4] c.e.myauth.controller.AuthController     : 로그인 성공 (loginEx): test2@example.com, 클라이언트: MOBILE
+2025-11-23T02:50:53.153+09:00  INFO 67401 --- [myauth] [restartedMain] com.example.myauth.MyauthApplication     : Starting MyauthApplication using Java 17.0.7 with PID 67401 (/Users/eunbumkim/Documents/practice/java/myauth/build/classes/java/main started by eunbumkim in /Users/eunbumkim/Documents/practice/java/myauth)
+2025-11-23T02:50:53.156+09:00 DEBUG 67401 --- [myauth] [restartedMain] com.example.myauth.MyauthApplication     : Running with Spring Boot v4.0.0, Spring v7.0.1
+2025-11-23T02:50:53.156+09:00  INFO 67401 --- [myauth] [restartedMain] com.example.myauth.MyauthApplication     : No active profile set, falling back to 1 default profile: "default"
+2025-11-23T02:50:53.189+09:00  INFO 67401 --- [myauth] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2025-11-23T02:50:53.189+09:00  INFO 67401 --- [myauth] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2025-11-23T02:50:53.666+09:00  INFO 67401 --- [myauth] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-11-23T02:50:53.693+09:00  INFO 67401 --- [myauth] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 23 ms. Found 2 JPA repository interfaces.
+2025-11-23T02:50:53.951+09:00  INFO 67401 --- [myauth] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 9080 (http)
+2025-11-23T02:50:53.959+09:00  INFO 67401 --- [myauth] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-11-23T02:50:53.960+09:00  INFO 67401 --- [myauth] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.14]
+2025-11-23T02:50:53.977+09:00  INFO 67401 --- [myauth] [restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 787 ms
+2025-11-23T02:50:54.042+09:00  INFO 67401 --- [myauth] [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-11-23T02:50:54.076+09:00  INFO 67401 --- [myauth] [restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 7.1.8.Final
+2025-11-23T02:50:54.328+09:00  INFO 67401 --- [myauth] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-11-23T02:50:54.349+09:00  INFO 67401 --- [myauth] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-11-23T02:50:54.452+09:00  INFO 67401 --- [myauth] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@3275c26b
+2025-11-23T02:50:54.453+09:00  INFO 67401 --- [myauth] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-11-23T02:50:54.490+09:00  WARN 67401 --- [myauth] [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-11-23T02:50:54.500+09:00  INFO 67401 --- [myauth] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:mysql://localhost:3306/mannal?useSSL=false&serverTimezone=Asia/Seoul&connectionTimeZone=Asia/Seoul&forceConnectionTimeZoneToSession=true&allowPublicKeyRetrieval=true]
+	Database driver: MySQL Connector/J
+	Database dialect: MySQLDialect
+	Database version: 8.0.33
+	Default catalog/schema: mannal/undefined
+	Autocommit mode: undefined/unknown
+	Isolation level: REPEATABLE_READ [default REPEATABLE_READ]
+	JDBC fetch size: none
+	Pool: DatasourceConnectionProviderImpl
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-11-23T02:50:55.038+09:00  INFO 67401 --- [myauth] [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-11-23T02:50:55.042+09:00  INFO 67401 --- [myauth] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-11-23T02:50:55.083+09:00  INFO 67401 --- [myauth] [restartedMain] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-11-23T02:50:55.183+09:00 DEBUG 67401 --- [myauth] [restartedMain] c.e.m.security.JwtAuthenticationFilter   : Filter 'jwtAuthenticationFilter' configured for use
+2025-11-23T02:50:55.518+09:00  WARN 67401 --- [myauth] [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-11-23T02:50:55.558+09:00  INFO 67401 --- [myauth] [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2025-11-23T02:50:55.765+09:00  INFO 67401 --- [myauth] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 9080 (http) with context path '/'
+2025-11-23T02:50:55.768+09:00  INFO 67401 --- [myauth] [restartedMain] com.example.myauth.MyauthApplication     : Started MyauthApplication in 2.873 seconds (process running for 3.148)
+2025-11-23T02:51:12.252+09:00  INFO 67401 --- [myauth] [http-nio-9080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-11-23T02:51:12.253+09:00  INFO 67401 --- [myauth] [http-nio-9080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-11-23T02:51:12.255+09:00  INFO 67401 --- [myauth] [http-nio-9080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+2025-11-23T02:54:26.425+09:00  INFO 67401 --- [myauth] [http-nio-9080-exec-2] c.e.myauth.controller.AuthController     : 로그인 요청 (loginEx): test2@example.com
+2025-11-23T02:54:26.427+09:00 DEBUG 67401 --- [myauth] [http-nio-9080-exec-2] c.e.myauth.util.ClientTypeDetector       : 모바일 앱 감지 (X-Client-Type 헤더)
+2025-11-23T02:54:26.427+09:00 DEBUG 67401 --- [myauth] [http-nio-9080-exec-2] c.e.myauth.util.ClientTypeDetector       : 모바일 앱 감지 (X-Client-Type 헤더)
+2025-11-23T02:54:26.427+09:00  INFO 67401 --- [myauth] [http-nio-9080-exec-2] c.e.myauth.controller.AuthController     : 감지된 클라이언트 타입: MOBILE
+2025-11-23T02:54:26.427+09:00  INFO 67401 --- [myauth] [http-nio-9080-exec-2] c.e.myauth.util.ClientTypeDetector       : === 클라이언트 정보 ===
+2025-11-23T02:54:26.427+09:00  INFO 67401 --- [myauth] [http-nio-9080-exec-2] c.e.myauth.util.ClientTypeDetector       : X-Client-Type: mobile-app
+2025-11-23T02:54:26.427+09:00  INFO 67401 --- [myauth] [http-nio-9080-exec-2] c.e.myauth.util.ClientTypeDetector       : User-Agent: curl/8.7.1
+2025-11-23T02:54:26.427+09:00 DEBUG 67401 --- [myauth] [http-nio-9080-exec-2] c.e.myauth.util.ClientTypeDetector       : 모바일 앱 감지 (X-Client-Type 헤더)
+2025-11-23T02:54:26.427+09:00  INFO 67401 --- [myauth] [http-nio-9080-exec-2] c.e.myauth.util.ClientTypeDetector       : 판단 결과: MOBILE
+2025-11-23T02:54:26.427+09:00  INFO 67401 --- [myauth] [http-nio-9080-exec-2] c.e.myauth.util.ClientTypeDetector       : ======================
+2025-11-23T02:54:26.436+09:00  INFO 67401 --- [myauth] [http-nio-9080-exec-2] com.example.myauth.service.AuthService   : 로그인 시도 (loginEx): test2@example.com
+2025-11-23T02:54:26.436+09:00 DEBUG 67401 --- [myauth] [http-nio-9080-exec-2] c.e.m.security.CustomUserDetailsService  : 사용자 로드 시도: test2@example.com
+2025-11-23T02:54:26.531+09:00 DEBUG 67401 --- [myauth] [http-nio-9080-exec-2] c.e.m.security.CustomUserDetailsService  : 사용자 로드 성공: test2@example.com, 상태: ACTIVE, 활성: true
+2025-11-23T02:54:26.675+09:00  INFO 67401 --- [myauth] [http-nio-9080-exec-2] com.example.myauth.service.AuthService   : JWT 토큰 생성 완료 (loginEx): test2@example.com
+2025-11-23T02:54:26.707+09:00  INFO 67401 --- [myauth] [http-nio-9080-exec-2] com.example.myauth.service.AuthService   : Refresh Token DB 저장 완료 (loginEx): test2@example.com
+2025-11-23T02:54:26.708+09:00  INFO 67401 --- [myauth] [http-nio-9080-exec-2] com.example.myauth.service.AuthService   : 로그인 성공 (loginEx): test2@example.com
+2025-11-23T02:54:26.717+09:00  INFO 67401 --- [myauth] [http-nio-9080-exec-2] c.e.myauth.controller.AuthController     : 모바일 클라이언트 감지 → Refresh Token을 JSON 응답에 포함
+2025-11-23T02:54:26.717+09:00  INFO 67401 --- [myauth] [http-nio-9080-exec-2] c.e.myauth.controller.AuthController     : 로그인 성공 (loginEx): test2@example.com, 클라이언트: MOBILE
+2025-11-23T02:55:35.850+09:00  INFO 67401 --- [myauth] [http-nio-9080-exec-4] c.e.myauth.controller.AuthController     : Access Token 갱신 요청
+2025-11-23T02:55:35.851+09:00 DEBUG 67401 --- [myauth] [http-nio-9080-exec-4] c.e.myauth.util.ClientTypeDetector       : 모바일 앱 감지 (X-Client-Type 헤더)
+2025-11-23T02:55:35.851+09:00 DEBUG 67401 --- [myauth] [http-nio-9080-exec-4] c.e.myauth.util.ClientTypeDetector       : 모바일 앱 감지 (X-Client-Type 헤더)
+2025-11-23T02:55:35.851+09:00  INFO 67401 --- [myauth] [http-nio-9080-exec-4] c.e.myauth.controller.AuthController     : 클라이언트 타입: MOBILE
+2025-11-23T02:55:35.852+09:00  INFO 67401 --- [myauth] [http-nio-9080-exec-4] c.e.myauth.controller.AuthController     : 모바일 클라이언트 → 요청 바디에서 Refresh Token 읽기
+2025-11-23T02:55:35.852+09:00 DEBUG 67401 --- [myauth] [http-nio-9080-exec-4] c.e.myauth.controller.AuthController     : 요청 바디에서 Refresh Token 발견
+2025-11-23T02:55:35.866+09:00  INFO 67401 --- [myauth] [http-nio-9080-exec-4] com.example.myauth.service.AuthService   : Access Token 갱신 요청
+2025-11-23T02:55:35.893+09:00 DEBUG 67401 --- [myauth] [http-nio-9080-exec-4] com.example.myauth.service.AuthService   : Refresh Token에서 추출한 이메일: test2@example.com
+2025-11-23T02:55:35.918+09:00  INFO 67401 --- [myauth] [http-nio-9080-exec-4] com.example.myauth.service.AuthService   : 새 Access Token 발급 성공: test2@example.com
+2025-11-23T02:55:35.925+09:00  INFO 67401 --- [myauth] [http-nio-9080-exec-4] c.e.myauth.controller.AuthController     : Access Token 갱신 성공
+2025-11-23T03:13:11.192+09:00  INFO 65580 --- [myauth] [restartedMain] com.example.myauth.MyauthApplication     : Starting MyauthApplication using Java 17.0.7 with PID 65580 (/Users/eunbumkim/Documents/practice/java/myauth/build/classes/java/main started by eunbumkim in /Users/eunbumkim/Documents/practice/java/myauth)
+2025-11-23T03:13:11.194+09:00 DEBUG 65580 --- [myauth] [restartedMain] com.example.myauth.MyauthApplication     : Running with Spring Boot v4.0.0, Spring v7.0.1
+2025-11-23T03:13:11.194+09:00  INFO 65580 --- [myauth] [restartedMain] com.example.myauth.MyauthApplication     : No active profile set, falling back to 1 default profile: "default"
+2025-11-23T03:13:11.220+09:00  INFO 65580 --- [myauth] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2025-11-23T03:13:11.221+09:00  INFO 65580 --- [myauth] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2025-11-23T03:13:11.546+09:00  INFO 65580 --- [myauth] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-11-23T03:13:11.573+09:00  INFO 65580 --- [myauth] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 23 ms. Found 2 JPA repository interfaces.
+2025-11-23T03:13:11.843+09:00  INFO 65580 --- [myauth] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 9080 (http)
+2025-11-23T03:13:11.851+09:00  INFO 65580 --- [myauth] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-11-23T03:13:11.851+09:00  INFO 65580 --- [myauth] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.14]
+2025-11-23T03:13:11.871+09:00  INFO 65580 --- [myauth] [restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 650 ms
+2025-11-23T03:13:11.931+09:00  INFO 65580 --- [myauth] [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-11-23T03:13:11.961+09:00  INFO 65580 --- [myauth] [restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 7.1.8.Final
+2025-11-23T03:13:12.210+09:00  INFO 65580 --- [myauth] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-11-23T03:13:12.233+09:00  INFO 65580 --- [myauth] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-11-23T03:13:12.337+09:00  INFO 65580 --- [myauth] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@40c3b76a
+2025-11-23T03:13:12.339+09:00  INFO 65580 --- [myauth] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-11-23T03:13:12.372+09:00  WARN 65580 --- [myauth] [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-11-23T03:13:12.381+09:00  INFO 65580 --- [myauth] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:mysql://localhost:3306/mannal?useSSL=false&serverTimezone=Asia/Seoul&connectionTimeZone=Asia/Seoul&forceConnectionTimeZoneToSession=true&allowPublicKeyRetrieval=true]
+	Database driver: MySQL Connector/J
+	Database dialect: MySQLDialect
+	Database version: 8.0.33
+	Default catalog/schema: mannal/undefined
+	Autocommit mode: undefined/unknown
+	Isolation level: REPEATABLE_READ [default REPEATABLE_READ]
+	JDBC fetch size: none
+	Pool: DatasourceConnectionProviderImpl
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-11-23T03:13:12.896+09:00  INFO 65580 --- [myauth] [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-11-23T03:13:12.900+09:00  INFO 65580 --- [myauth] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-11-23T03:13:12.946+09:00  INFO 65580 --- [myauth] [restartedMain] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-11-23T03:13:13.025+09:00 ERROR 65580 --- [myauth] [restartedMain] t.s.DeferredServletContainerInitializers : Error starting Tomcat context. Exception: org.springframework.beans.factory.UnsatisfiedDependencyException. Message: Error creating bean with name 'jwtAuthenticationFilter' defined in file [/Users/eunbumkim/Documents/practice/java/myauth/build/classes/java/main/com/example/myauth/security/JwtAuthenticationFilter.class]: Unsatisfied dependency expressed through constructor parameter 2: No qualifying bean of type 'com.fasterxml.jackson.databind.ObjectMapper' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}
+2025-11-23T03:13:13.041+09:00  INFO 65580 --- [myauth] [restartedMain] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
+2025-11-23T03:13:13.042+09:00  WARN 65580 --- [myauth] [restartedMain] o.a.c.loader.WebappClassLoaderBase       : The web application [ROOT] appears to have started a thread named [HikariPool-1:housekeeper] but has failed to stop it. This is very likely to create a memory leak. Stack trace of thread:
+ java.base@17.0.7/jdk.internal.misc.Unsafe.park(Native Method)
+ java.base@17.0.7/java.util.concurrent.locks.LockSupport.parkNanos(LockSupport.java:252)
+ java.base@17.0.7/java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.awaitNanos(AbstractQueuedSynchronizer.java:1672)
+ java.base@17.0.7/java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue.take(ScheduledThreadPoolExecutor.java:1182)
+ java.base@17.0.7/java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue.take(ScheduledThreadPoolExecutor.java:899)
+ java.base@17.0.7/java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1062)
+ java.base@17.0.7/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1122)
+ java.base@17.0.7/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+ java.base@17.0.7/java.lang.Thread.run(Thread.java:833)
+2025-11-23T03:13:13.043+09:00  WARN 65580 --- [myauth] [restartedMain] o.a.c.loader.WebappClassLoaderBase       : The web application [ROOT] appears to have started a thread named [HikariPool-1:connection-adder] but has failed to stop it. This is very likely to create a memory leak. Stack trace of thread:
+ java.base@17.0.7/jdk.internal.misc.Unsafe.park(Native Method)
+ java.base@17.0.7/java.util.concurrent.locks.LockSupport.parkNanos(LockSupport.java:252)
+ java.base@17.0.7/java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.awaitNanos(AbstractQueuedSynchronizer.java:1672)
+ java.base@17.0.7/java.util.concurrent.LinkedBlockingQueue.poll(LinkedBlockingQueue.java:460)
+ java.base@17.0.7/java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1061)
+ java.base@17.0.7/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1122)
+ java.base@17.0.7/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+ java.base@17.0.7/java.lang.Thread.run(Thread.java:833)
+2025-11-23T03:13:13.044+09:00  WARN 65580 --- [myauth] [restartedMain] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Unable to start web server
+2025-11-23T03:13:13.045+09:00  INFO 65580 --- [myauth] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-11-23T03:13:13.047+09:00  INFO 65580 --- [myauth] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-11-23T03:13:13.051+09:00  INFO 65580 --- [myauth] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2025-11-23T03:13:13.054+09:00  INFO 65580 --- [myauth] [restartedMain] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2025-11-23T03:13:13.062+09:00 ERROR 65580 --- [myauth] [restartedMain] o.s.b.d.LoggingFailureAnalysisReporter   : 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Parameter 2 of constructor in com.example.myauth.security.JwtAuthenticationFilter required a bean of type 'com.fasterxml.jackson.databind.ObjectMapper' that could not be found.
+
+
+Action:
+
+Consider defining a bean of type 'com.fasterxml.jackson.databind.ObjectMapper' in your configuration.
+

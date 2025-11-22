@@ -8,6 +8,17 @@ jwt:
   access-token-expiration: 3600000    # Access Token 만료 시간 (1시간 = 3600000ms)
   refresh-token-expiration: 604800000  # Refresh Token 만료 시간 (7일 = 604800000ms)
 
+logging:
+  file:
+    name: logs/myauth.log
+  level:
+    root: INFO
+    com.example.myauth: DEBUG
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+      max-history: 30
+
 spring:
   application:
     name: myauth
