@@ -1,5 +1,6 @@
 package com.example.myauth.controller;
 
+import com.example.myauth.config.AppProperties;
 import com.example.myauth.dto.ApiResponse;
 import com.example.myauth.dto.LoginRequest;
 import com.example.myauth.dto.LoginResponse;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthController {
   private final AuthService authService;
+  private final AppProperties appProperties;
 
   @GetMapping("/health")
   public ResponseEntity<ApiResponse<Void>> health() {
@@ -102,7 +104,8 @@ public class AuthController {
       // Refresh Token을 HTTP-only 쿠키로 설정
       Cookie refreshTokenCookie = new Cookie("refreshToken", loginResponse.getRefreshToken());
       refreshTokenCookie.setHttpOnly(true);   // JavaScript 접근 불가 (XSS 방어)
-      refreshTokenCookie.setSecure(false);     // HTTPS only (개발 환경에서는 false, 프로덕션에서는 true)
+      refreshTokenCookie.setSecure(appProperties.getCookie().isSecure());  // 환경별 동적 설정 (개발: false, 프로덕션: true)
+      log.info("쿠키 Secure 플래그: {}", appProperties.getCookie().isSecure());
       refreshTokenCookie.setPath("/");        // 모든 경로에서 쿠키 전송
       refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60); // 7일 (초 단위)
 

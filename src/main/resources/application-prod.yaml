@@ -1,0 +1,43 @@
+# ================================================
+# 프로덕션 환경 설정 (application-prod.yaml)
+# 사용 방법: --spring.profiles.active=prod
+# ================================================
+
+# 로깅 설정 - 프로덕션 환경에서는 필요한 로그만 출력
+logging:
+  level:
+    root: WARN
+    com.example.myauth: INFO
+    # Spring Security 로깅 최소화
+    org.springframework.security: WARN
+
+# JPA 설정 - 프로덕션 환경에서는 SQL 로그 비활성화
+spring:
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+# 애플리케이션 커스텀 설정
+app:
+  # 쿠키 보안 설정 (프로덕션 환경에서는 HTTPS 필수)
+  cookie:
+    secure: true  # HTTPS에서만 쿠키 전송 (프로덕션용)
+
+  # CORS 허용 출처 (프로덕션 환경 - 실제 도메인으로 변경 필요)
+  cors:
+    allowed-origins:
+      - https://yourdomain.com           # 실제 프론트엔드 도메인
+      - https://www.yourdomain.com       # www 도메인
+      - https://app.yourdomain.com       # 앱 서브도메인
+    allowed-methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - OPTIONS
+    allow-credentials: true  # 쿠키 전송 허용
+
+# 프로덕션 환경 실행
+# ./gradlew bootRun --args='--spring.profiles.active=prod'

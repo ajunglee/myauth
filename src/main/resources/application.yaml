@@ -3,30 +3,28 @@ server:
 
 # JWT 설정
 jwt:
-  secret: mySecretKeyForJWTTokenGenerationThisKeyMustBeLongEnoughForHS512Algorithm
-  # 비밀 키 (최소 64자 이상, 실제로는 환경변수로 관리해야 함)
-  access-token-expiration: 3600000    # Access Token 만료 시간 (1시간 = 3600000ms),  60초 * 60분
-  refresh-token-expiration: 604800000  # Refresh Token 만료 시간 (7일 = 604800000ms)
+  # 환경 변수로 관리 (보안 강화)
+  # 개발: 기본값 사용, 프로덕션: 환경 변수 필수 설정
+  secret: ${JWT_SECRET:mySecretKeyForJWTTokenGenerationThisKeyMustBeLongEnoughForHS512Algorithm}
+  access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION:3600000}    # Access Token 만료 시간 (1시간 = 3600000ms)
+  refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:604800000}  # Refresh Token 만료 시간 (7일 = 604800000ms)
 
 # OAuth 설정 (카카오, 구글 등)
 oauth:
   kakao:
-    client-id: f0bfa98dfa477735feeb8dbfdfa1d105  # 카카오 REST API 키
-    client-secret: U4JgTAZGirCvVGmmnvuSlsoWlKFPstvV  # 카카오 Client Secret
-    redirect-uri: http://localhost:9080/auth/kakao/callback  # 카카오 인증 후 리다이렉트 URI
-    authorization-uri: https://kauth.kakao.com/oauth/authorize  # 카카오 인가 코드 요청 URI
-    token-uri: https://kauth.kakao.com/oauth/token  # 카카오 액세스 토큰 요청 URI
-    user-info-uri: https://kapi.kakao.com/v2/user/me  # 카카오 사용자 정보 조회 URI
+    # 환경 변수로 관리 (보안 강화)
+    # 개발: 기본값 사용, 프로덕션: 환경 변수 필수 설정
+    client-id: ${KAKAO_CLIENT_ID:f0bfa98dfa477735feeb8dbfdfa1d105}
+    client-secret: ${KAKAO_CLIENT_SECRET:U4JgTAZGirCvVGmmnvuSlsoWlKFPstvV}
+    redirect-uri: ${KAKAO_REDIRECT_URI:http://localhost:9080/auth/kakao/callback}
+    # 카카오 API 엔드포인트 (변경될 가능성 낮음)
+    authorization-uri: https://kauth.kakao.com/oauth/authorize
+    token-uri: https://kauth.kakao.com/oauth/token
+    user-info-uri: https://kapi.kakao.com/v2/user/me
 
 logging:
   file:
     name: logs/myauth.log
-  level:
-    root: INFO
-    com.example.myauth: DEBUG
-    # Spring Security 필터 체인 디버그 로깅 (애플리케이션 시작 시 필터 체인 출력)
-    org.springframework.security: DEBUG
-    org.springframework.security.web.DefaultSecurityFilterChain: DEBUG
   logback:
     rollingpolicy:
       max-file-size: 10MB
@@ -37,9 +35,10 @@ spring:
     name: myauth
 
   datasource:
-    url: jdbc:mysql://localhost:3306/mannal?useSSL=false&serverTimezone=Asia/Seoul&connectionTimeZone=Asia/Seoul&forceConnectionTimeZoneToSession=true&allowPublicKeyRetrieval=true
-    username: root
-    password: 1234
+    # 환경 변수로 관리 (보안 강화)
+    url: ${DB_URL:jdbc:mysql://localhost:3306/mannal?useSSL=false&serverTimezone=Asia/Seoul&connectionTimeZone=Asia/Seoul&forceConnectionTimeZoneToSession=true&allowPublicKeyRetrieval=true}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:1234}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -50,11 +49,9 @@ spring:
       # update : 엔티티 변경사항을 기반으로 DB테이블을 자동으로 업데이트함, 컬럼 삭제 안됨, 기존데이터 유지
       # create : 어플리케이션을 실행할때마다 기존테이블 삭제 -> 새롭게 테이블 생성, 기존데이터 모두 삭제, 테스트용 개발 초기에만 사용
       # create-drop : create와 동일하지만 app종료 시점에 테이블 전체 drop
-    show-sql: true
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
-        format_sql: true
         # Hibernate가 DB에 날짜/시간을 저장할 때 사용할 타임존 (한국 시간)
         jdbc:
           time_zone: Asia/Seoul

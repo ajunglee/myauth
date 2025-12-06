@@ -11,8 +11,9 @@
 5. [DTO 구조 설계](#3️⃣-dto-구조-설계)
 6. [카카오 OAuth 서비스 로직](#4️⃣-카카오-oauth-서비스-로직)
 7. [컨트롤러 엔드포인트](#5️⃣-컨트롤러-엔드포인트)
-8. [Repository 메서드](#6️⃣-repository-메서드-추가)
-9. [Spring Security 설정](#7️⃣-spring-security-설정)
+8. [카카오 로그아웃](#6️⃣-카카오-로그아웃)
+9. [Repository 메서드](#7️⃣-repository-메서드-추가)
+10. [Spring Security 설정](#8️⃣-spring-security-설정)
 10. [전체 동작 흐름](#📊-전체-동작-흐름)
 11. [핵심 개념 정리](#🔑-핵심-개념-정리)
 
@@ -907,7 +908,147 @@ GET http://localhost:9080/auth/kakao/callback?code=AUTHORIZATION_CODE
 
 ---
 
-## 6️⃣ **Repository 메서드 추가**
+## 6️⃣ **카카오 로그아웃**
+
+### 현재 구현 방식
+
+현재 구현에서는 **애플리케이션 레벨 로그아웃만** 처리합니다. 카카오 Access Token을 별도로 저장하지 않으므로, 카카오 서버에 로그아웃 API를 호출하지 않습니다.
+
+### 로그아웃 동작 방식
+
+#### 카카오 로그인 사용자도 기존 `/logout` 엔드포인트 사용
+
+카카오 OAuth로 로그인한 사용자도 일반 회원가입 사용자와 동일하게 `/logout` 엔드포인트를 사용합니다.
+
+**로그아웃 요청:**
+```http
+POST http://localhost:9080/logout
+Authorization: Bearer {JWT_ACCESS_TOKEN}
+```
+
+**처리 과정:**
+1. ✅ 우리 서비스의 JWT Refresh Token DB에서 삭제
+2. ✅ 사용자 세션 종료 (애플리케이션 레벨)
+3. ⚠️ **카카오 서버에는 로그아웃 요청을 보내지 않음**
+
+**결과:**
+```json
+{
+  "success": true,
+  "message": "로그아웃 성공"
+}
+```
+
+### 로그아웃 후 상태
+
+| 항목 | 상태 | 설명 |
+|------|------|------|
+| 우리 서비스 JWT | ❌ 만료 | Refresh Token이 DB에서 삭제되어 재발급 불가 |
+| 카카오 세션 | ✅ 유지 | 카카오 서버에는 여전히 로그인 상태 |
+| 재로그인 시 | 자동 로그인 | 동의 화면 없이 바로 로그인됨 |
+
+### 재로그인 시 동작
+
+사용자가 로그아웃 후 다시 카카오 로그인을 시도하면:
+
+1. `/auth/kakao/login` 접속
+2. 카카오 로그인 페이지로 리다이렉트
+3. **카카오 서버가 이미 로그인 상태임을 확인**
+4. **동의 화면 없이 바로 Authorization Code 발급** ⚠️
+5. 콜백으로 돌아와 JWT 재발급
+6. 로그인 완료
+
+> ⚠️ **중요**: 카카오 서버 세션이 유지되므로, 사용자는 별도의 로그인/동의 과정 없이 자동으로 로그인됩니다.
+
+### 완전한 로그아웃이 필요한 경우
+
+만약 카카오 서버에서도 완전히 로그아웃 처리가 필요하다면:
+
+#### 옵션 1: 카카오 Access Token 저장 방식
+
+**필요한 변경사항:**
+
+1. **User 테이블에 카카오 토큰 필드 추가**
+```sql
+ALTER TABLE users
+ADD COLUMN kakao_access_token VARCHAR(500) NULL COMMENT '카카오 Access Token',
+ADD COLUMN kakao_refresh_token VARCHAR(500) NULL COMMENT '카카오 Refresh Token',
+ADD COLUMN kakao_token_expires_at DATETIME NULL COMMENT '카카오 Access Token 만료 시간';
+```
+
+2. **KakaoOAuthService에 로그아웃 메서드 추가**
+```java
+public void logoutFromKakao(String kakaoAccessToken) {
+  restClient.post()
+    .uri("https://kapi.kakao.com/v1/user/logout")
+    .header("Authorization", "Bearer " + kakaoAccessToken)
+    .retrieve()
+    .body(KakaoOAuthDto.LogoutResponse.class);
+}
+```
+
+3. **CustomLogoutHandler에서 카카오 로그아웃 호출**
+```java
+if (user.getProvider().equals("KAKAO") && user.getKakaoAccessToken() != null) {
+  kakaoOAuthService.logoutFromKakao(user.getKakaoAccessToken());
+}
+```
+
+#### 옵션 2: 프론트엔드에서 카카오 로그아웃 처리
+
+카카오 JavaScript SDK를 사용하여 프론트엔드에서 직접 카카오 로그아웃 처리:
+
+```javascript
+// 프론트엔드 (JavaScript)
+// 1. 우리 서비스 로그아웃
+await fetch('/logout', {
+  method: 'POST',
+  headers: { 'Authorization': `Bearer ${accessToken}` }
+});
+
+// 2. 카카오 로그아웃
+if (Kakao.Auth.getAccessToken()) {
+  Kakao.Auth.logout(() => {
+    console.log('카카오 로그아웃 완료');
+  });
+}
+```
+
+### 현재 방식의 장단점
+
+#### 장점
+- ✅ 구현이 간단함
+- ✅ 카카오 Access Token 관리 불필요
+- ✅ 보안 리스크 감소 (토큰 저장 안 함)
+- ✅ 사용자 편의성 향상 (재로그인 시 빠른 인증)
+
+#### 단점
+- ⚠️ 카카오 서버 세션이 유지됨
+- ⚠️ 완전한 로그아웃이 아님
+- ⚠️ 공용 PC에서 보안 이슈 가능 (다음 사용자가 자동 로그인됨)
+
+### 사용 시나리오별 권장사항
+
+| 시나리오 | 권장 방식 | 이유 |
+|---------|----------|------|
+| 개인 기기 (모바일, PC) | 현재 방식 | 사용자 편의성 우선 |
+| 공용 PC (PC방, 도서관) | 카카오 로그아웃 추가 | 보안 우선 |
+| 테스트 환경 | 현재 방식 | 개발 편의성 |
+| 프라이버시 중시 서비스 | 카카오 로그아웃 추가 | 완전한 로그아웃 필요 |
+
+### 참고: 카카오 로그아웃 vs 연결 끊기
+
+| 구분 | 로그아웃 API | 연결 끊기 API |
+|------|-------------|--------------|
+| API | `POST /v1/user/logout` | `POST /v1/user/unlink` |
+| 효과 | 카카오 Access Token 만료 | 카카오 계정 연동 해제 |
+| 재로그인 | 동의 없이 재로그인 가능 | 처음부터 다시 동의 필요 |
+| 사용 시기 | 일반 로그아웃 | 회원 탈퇴 시 |
+| DB 데이터 | 유지 | 삭제 권장 |
+
+---
+
+## 7️⃣ **Repository 메서드 추가**
 
 ### UserRepository
 
@@ -977,7 +1118,7 @@ WHERE provider = ? AND provider_id = ?
 
 ---
 
-## 7️⃣ **Spring Security 설정**
+## 8️⃣ **Spring Security 설정**
 
 ### SecurityConfig
 

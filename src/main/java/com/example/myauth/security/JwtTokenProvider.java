@@ -30,11 +30,8 @@ public class JwtTokenProvider {
       @Value("${jwt.refresh-token-expiration}") long refreshTokenExpiration
   ) {
     // 비밀 키를 SecretKey 객체로 변환
-    System.out.println("===========================================================================");
-    System.out.println(secret);
-    System.out.println(accessTokenExpiration);
-    System.out.println(refreshTokenExpiration);
-    System.out.println("===========================================================================");
+    log.debug("JWT 설정 초기화 - Access Token 만료: {}ms, Refresh Token 만료: {}ms",
+        accessTokenExpiration, refreshTokenExpiration);
 
     this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     this.accessTokenExpiration = accessTokenExpiration;
@@ -51,11 +48,7 @@ public class JwtTokenProvider {
     Date now = new Date();
     Date expiryDate = new Date(now.getTime() + accessTokenExpiration);
 
-    System.out.println("===========================================================================");
-    log.debug("generateAccessToken() : userEmail={}, userId={}", userEmail, userId);
-    log.debug("generateAccessToken::now : {}", now);
-    log.debug("generateAccessToken::expiryDate : {}", expiryDate);
-    System.out.println("===========================================================================");
+    log.debug("Access Token 생성 - 사용자: {}, ID: {}, 만료: {}", userEmail, userId, expiryDate);
 
     return Jwts.builder()
         .subject(userEmail)                    // 토큰 주체 (사용자 이메일)
@@ -76,11 +69,7 @@ public class JwtTokenProvider {
     Date now = new Date();
     Date expiryDate = new Date(now.getTime() + refreshTokenExpiration);
 
-    System.out.println("===========================================================================");
-    log.debug("generateRefreshToken() : userEmail={}", userEmail);
-    log.debug("generateRefreshToken::now : {}", now);
-    log.debug("generateRefreshToken::expiryDate : {}", expiryDate);
-    System.out.println("===========================================================================");
+    log.debug("Refresh Token 생성 - 사용자: {}, 만료: {}", userEmail, expiryDate);
 
     return Jwts.builder()
         .subject(userEmail)                    // 토큰 주체 (사용자 이메일)
