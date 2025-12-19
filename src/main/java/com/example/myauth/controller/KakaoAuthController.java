@@ -12,6 +12,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -70,15 +72,23 @@ public class KakaoAuthController {
     log.info("세션에서 pendingLoginResponse 제거 완료");
 
     // 3️⃣ Refresh Token을 HTTP-only 쿠키로 설정
-    Cookie refreshTokenCookie = new Cookie("refreshToken", loginResponse.getRefreshToken());
-    refreshTokenCookie.setHttpOnly(true);   // JavaScript 접근 불가 (XSS 방어)
-    refreshTokenCookie.setSecure(appProperties.getCookie().isSecure());  // 환경별 동적 설정
-    log.info("쿠키 Secure 플래그: {}", appProperties.getCookie().isSecure());
-    refreshTokenCookie.setPath("/");        // 모든 경로에서 쿠키 전송
-    refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60); // 7일 (초 단위)
-    log.info("쿠키 설정: HttpOnly=true, Secure={}, Path=/, MaxAge=7일", appProperties.getCookie().isSecure());
+    // ResponseCookie를 사용하여 SameSite와 Domain 속성 명시
+    // - SameSite=Lax: CSRF 방어 + 일반적인 웹 사용 가능
+    // - Domain=localhost: 포트 무관하게 모든 localhost에서 쿠키 공유 (localhost:5173과 localhost:9080 모두 접근 가능)
+    ResponseCookie refreshTokenCookie = ResponseCookie
+        .from("refreshToken", loginResponse.getRefreshToken())
+        .httpOnly(true)   // JavaScript 접근 불가 (XSS 방어)
+        .secure(appProperties.getCookie().isSecure())  // 환경별 동적 설정 (개발: false, 프로덕션: true)
+        .path("/")        // 모든 경로에서 쿠키 전송
+        .maxAge(7 * 24 * 60 * 60)  // 7일 (초 단위)
+        .sameSite("Lax")  // CSRF 방어 + 일반 네비게이션에서 쿠키 전송 허용
+        .domain("localhost")  // 포트 무관하게 localhost 전체에서 쿠키 공유
+        .build();
 
-    response.addCookie(refreshTokenCookie);
+    log.info("쿠키 설정: HttpOnly=true, Secure={}, Path=/, MaxAge=7일, SameSite=Lax, Domain=localhost",
+        appProperties.getCookie().isSecure());
+
+    response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
     log.info("Refresh Token을 쿠키에 설정 완료");
 
     // 4️⃣ 응답 바디에서 Refresh Token 제거 (보안 강화)

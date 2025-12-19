@@ -53,6 +53,7 @@ public class AppProperties {
 
     /**
      * CORS 허용 HTTP 메서드
+     * 실제 사용: GET (조회), POST (생성/로그인), PUT (수정), DELETE (삭제), OPTIONS (CORS preflight)
      */
     private List<String> allowedMethods = List.of("GET", "POST", "PUT", "DELETE", "OPTIONS");
 

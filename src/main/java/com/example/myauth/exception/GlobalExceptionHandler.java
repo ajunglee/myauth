@@ -5,8 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.validation.ObjectError;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -102,6 +105,92 @@ public class GlobalExceptionHandler {
 
     return ResponseEntity
         .status(HttpStatus.BAD_REQUEST)
+        .body(ApiResponse.error(errorMessage));
+  }
+
+  /**
+   * HTTP 요청 body 읽기 실패 시 처리
+   * - 요청 body가 비어있거나 필수인데 없는 경우
+   * - JSON 파싱 실패 (잘못된 JSON 형식)
+   * - Content-Type과 실제 body 내용이 일치하지 않는 경우
+   *
+   * @param ex HttpMessageNotReadableException
+   * @return 사용자 친화적인 에러 메시지
+   */
+  @ExceptionHandler(HttpMessageNotReadableException.class)
+  @SuppressWarnings("NullableProblems")
+  public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadable(
+      HttpMessageNotReadableException ex) {
+
+    String errorMessage;
+    String detailMessage = ex.getMessage();
+
+    // 에러 메시지 분석하여 사용자 친화적인 메시지 생성
+    if (detailMessage != null && detailMessage.contains("Required request body is missing")) {
+      errorMessage = "요청 body가 비어있습니다. JSON 형식의 데이터를 전송해주세요.";
+    } else {
+      errorMessage = "잘못된 요청 형식입니다. JSON 형식이 올바른지 확인해주세요.";
+    }
+
+    log.warn("HTTP 메시지 읽기 실패: {}", errorMessage);
+    log.debug("상세 에러: {}", detailMessage);
+
+    return ResponseEntity
+        .status(HttpStatus.BAD_REQUEST)
+        .body(ApiResponse.error(errorMessage));
+  }
+
+  /**
+   * 지원하지 않는 Content-Type으로 요청한 경우 처리
+   * 예: application/json을 기대하는데 application/x-www-form-urlencoded로 요청
+   *
+   * @param ex HttpMediaTypeNotSupportedException
+   * @return 사용자 친화적인 에러 메시지
+   */
+  @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+  @SuppressWarnings("NullableProblems")
+  public ResponseEntity<ApiResponse<Void>> handleHttpMediaTypeNotSupported(
+      HttpMediaTypeNotSupportedException ex) {
+
+    String errorMessage = String.format(
+        "지원하지 않는 Content-Type입니다. 'Content-Type: application/json' 헤더를 추가해주세요.",
+        ex.getContentType()
+    );
+
+    log.warn("지원하지 않는 Media Type: {}", ex.getContentType());
+
+    return ResponseEntity
+        .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+        .body(ApiResponse.error(errorMessage));
+  }
+
+  /**
+   * 지원하지 않는 HTTP 메서드로 요청한 경우 처리
+   * 예: POST만 지원하는 엔드포인트에 GET 요청
+   *
+   * @param ex HttpRequestMethodNotSupportedException
+   * @return 사용자 친화적인 에러 메시지
+   */
+  @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+  @SuppressWarnings("NullableProblems")
+  public ResponseEntity<ApiResponse<Void>> handleHttpRequestMethodNotSupported(
+      HttpRequestMethodNotSupportedException ex) {
+
+    String supportedMethods = ex.getSupportedHttpMethods() != null
+        ? ex.getSupportedHttpMethods().toString()
+        : "지원되는 메서드 없음";
+
+    String errorMessage = String.format(
+        "%s 메서드는 지원하지 않습니다. 지원하는 메서드: %s",
+        ex.getMethod(),
+        supportedMethods
+    );
+
+    log.warn("지원하지 않는 HTTP 메서드: {} (요청된 메서드), 지원: {}",
+        ex.getMethod(), supportedMethods);
+
+    return ResponseEntity
+        .status(HttpStatus.METHOD_NOT_ALLOWED)
         .body(ApiResponse.error(errorMessage));
   }
 

@@ -15,8 +15,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -102,17 +104,23 @@ public class AuthController {
       log.info("웹 클라이언트 감지 → Refresh Token을 HTTP-only 쿠키로 설정");
 
       // Refresh Token을 HTTP-only 쿠키로 설정
-      Cookie refreshTokenCookie = new Cookie("refreshToken", loginResponse.getRefreshToken());
-      refreshTokenCookie.setHttpOnly(true);   // JavaScript 접근 불가 (XSS 방어)
-      refreshTokenCookie.setSecure(appProperties.getCookie().isSecure());  // 환경별 동적 설정 (개발: false, 프로덕션: true)
-      log.info("쿠키 Secure 플래그: {}", appProperties.getCookie().isSecure());
-      refreshTokenCookie.setPath("/");        // 모든 경로에서 쿠키 전송
-      refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60); // 7일 (초 단위)
-      // Domain 설정 제거 - 기본 도메인(localhost:9080)에만 쿠키 설정
-      // SameSite는 브라우저 기본값(Lax) 사용
-      log.info("쿠키 설정 완료 (Domain: 기본값, SameSite: 브라우저 기본값)");
+      // ResponseCookie를 사용하여 SameSite와 Domain 속성 명시
+      // - SameSite=Lax: CSRF 방어 + 일반적인 웹 사용 가능
+      // - Domain=localhost: 포트 무관하게 모든 localhost에서 쿠키 공유 (localhost:5173과 localhost:9080 모두 접근 가능)
+      ResponseCookie refreshTokenCookie = ResponseCookie
+          .from("refreshToken", loginResponse.getRefreshToken())
+          .httpOnly(true)   // JavaScript 접근 불가 (XSS 방어)
+          .secure(appProperties.getCookie().isSecure())  // 환경별 동적 설정 (개발: false, 프로덕션: true)
+          .path("/")        // 모든 경로에서 쿠키 전송
+          .maxAge(7 * 24 * 60 * 60)  // 7일 (초 단위)
+          .sameSite("Lax")  // CSRF 방어 + 일반 네비게이션에서 쿠키 전송 허용
+          .domain("localhost")  // 포트 무관하게 localhost 전체에서 쿠키 공유
+          .build();
 
-      response.addCookie(refreshTokenCookie);
+      log.info("쿠키 설정: HttpOnly=true, Secure={}, Path=/, MaxAge=7일, SameSite=Lax, Domain=localhost",
+          appProperties.getCookie().isSecure());
+
+      response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
       log.info("Refresh Token을 쿠키에 설정 완료");
 
       // 응답 바디에서 Refresh Token 제거 (쿠키로 전송했으므로)
