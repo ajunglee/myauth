@@ -3,13 +3,24 @@
 # 사용 방법: --spring.profiles.active=prod
 # ================================================
 
-# 로깅 설정 - 프로덕션 환경에서는 필요한 로그만 출력
+# 서버 설정 - HTTP (Nginx가 HTTPS 처리)
+server:
+  port: 9080  # 내부 포트 (Nginx를 통해서만 접근)
+
+# 로깅 설정 - 프로덕션 환경에서는 중요한 로그만 출력
 logging:
   level:
     root: WARN
     com.example.myauth: INFO
-    # Spring Security 로깅 최소화
+    # Spring Security 필터 체인 로깅 비활성화 (성능 향상)
     org.springframework.security: WARN
+
+  # 로그 파일 설정
+  file:
+    name: /app/logs/myauth.log
+    max-size: 20MB
+    max-history: 30
+    total-size-cap: 1GB
 
 # JPA 설정 - 프로덕션 환경에서는 SQL 로그 비활성화
 spring:
@@ -18,19 +29,22 @@ spring:
     properties:
       hibernate:
         format_sql: false
+        # 성능 최적화
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
 
 # 애플리케이션 커스텀 설정
 app:
-  # 쿠키 보안 설정 (프로덕션 환경에서는 HTTPS 필수)
+  # 쿠키 보안 설정
   cookie:
-    secure: true  # HTTPS에서만 쿠키 전송 (프로덕션용)
+    secure: false  # HTTP 환경 (HTTPS 도메인 없음)
 
-  # CORS 허용 출처 (프로덕션 환경 - 실제 도메인으로 변경 필요)
+  # CORS 허용 출처 (프로덕션 IP)
   cors:
     allowed-origins:
-      - https://yourdomain.com           # 실제 프론트엔드 도메인
-      - https://www.yourdomain.com       # www 도메인
-      - https://app.yourdomain.com       # 앱 서브도메인
+      - http://13.124.241.22          # 프로덕션 프론트엔드 (포트 80)
     allowed-methods:
       - GET
       - POST
@@ -39,5 +53,10 @@ app:
       - OPTIONS
     allow-credentials: true  # 쿠키 전송 허용
 
-# 프로덕션 환경 실행
-# ./gradlew bootRun --args='--spring.profiles.active=prod'
+  # OAuth 리다이렉트 설정
+  oauth:
+    kakao-redirect-url: http://13.124.241.22/oauth/callback  # 카카오 로그인 성공 후 프론트엔드로 리다이렉트 (포트 80)
+
+
+# 프로덕션 환경 실행 (Docker 내부에서 자동 설정)
+# SPRING_PROFILES_ACTIVE=prod 환경 변수로 활성화

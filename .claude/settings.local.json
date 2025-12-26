@@ -12,7 +12,8 @@
       "Bash(./gradlew dependencies:*)",
       "Bash(/tmp/login_response.json)",
       "Bash(cat:*)",
-      "Bash(mysql:*)"
+      "Bash(mysql:*)",
+      "Bash(echo:*)"
     ],
     "deny": [],
     "ask": []
