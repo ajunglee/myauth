@@ -13,7 +13,8 @@
       "Bash(/tmp/login_response.json)",
       "Bash(cat:*)",
       "Bash(mysql:*)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(docker logs:*)"
     ],
     "deny": [],
     "ask": []

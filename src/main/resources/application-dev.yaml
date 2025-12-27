@@ -34,6 +34,7 @@ app:
   cors:
     allowed-origins:
       - http://localhost:5173      # Vite 개발 서버
+      - http://localhost
 
     allowed-methods:
       - GET

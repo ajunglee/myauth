@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
+@RequestMapping("/api")  // 모든 API 엔드포인트에 /api 접두사 추가
 @RequiredArgsConstructor
 public class AuthController {
   private final AuthService authService;

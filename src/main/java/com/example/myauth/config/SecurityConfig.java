@@ -84,8 +84,10 @@ public class SecurityConfig {
             auth
                 // 인증 없이 접근 가능한 경로
                 .requestMatchers("/health", "/signup", "/login", "/loginEx", "/refresh").permitAll()
+                // /api 접두사가 붙은 경로도 허용 (프론트엔드 호환성)
+                .requestMatchers("/api/health", "/api/signup", "/api/login", "/api/loginEx", "/api/refresh").permitAll()
                 // 카카오 OAuth 로그인 경로 (인증 불필요)
-                .requestMatchers("/auth/kakao/**").permitAll()
+                .requestMatchers("/auth/kakao/**", "/api/auth/kakao/**").permitAll()
                 // 그 외 모든 요청은 인증 필요
                 .anyRequest().authenticated()
         )
