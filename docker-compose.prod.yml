@@ -1,128 +1,335 @@
 # ================================================
 # 프로덕션 환경 Docker Compose
-# AWS Lightsail 배포용
+# AWS Lightsail 배포용 (MySQL 컨테이너 포함)
 # ================================================
 #
 # 구성 요소:
-# 1. Spring Boot 백엔드 (myauth)
-# 2. Nginx (리버스 프록시 + 정적 파일 서빙) - 선택사항
+# 1. MySQL 8.0 데이터베이스
+# 2. Spring Boot 백엔드
 #
-# 데이터베이스: AWS Lightsail Database 사용 (별도 관리)
+# 개발 환경과의 차이:
+# - 프로덕션 포트 사용 (8080)
+# - 데이터 영구 보존 (Docker 볼륨)
+# - 보안 강화 설정
 #
 # ================================================
 
 services:
   # ========================================
-  # Spring Boot 백엔드
+  # MySQL 데이터베이스
   # ========================================
-  backend:
-    # GitHub Container Registry에서 이미지 가져오기
-    # GitHub Actions가 자동으로 빌드하고 푸시한 이미지 사용
-    image: ghcr.io/icesnake72/myauth:latest
+  mysql:
+    image: mysql:8
+    container_name: prod-mysql
 
-    container_name: prod-backend
-
-    # 백엔드 포트 노출 (프론트엔드는 80 포트 사용 예정)
+    # MySQL 포트 노출 (외부 접근용 - 선택사항)
     ports:
-      - "8080:9080"
+      - "3306:3306"
 
     environment:
-      # 데이터베이스 연결 (Lightsail Database 엔드포인트)
-      # .env 파일에서 자동으로 로드됨
-      DB_URL: ${DB_URL}
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
+      # Root 비밀번호 (.env 파일에서 로드)
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
 
-      # JWT 설정 (보안을 위해 .env 파일에서 관리)
-      JWT_SECRET: ${JWT_SECRET}
-      JWT_ACCESS_TOKEN_EXPIRATION: ${JWT_ACCESS_TOKEN_EXPIRATION:-3600000}
-      JWT_REFRESH_TOKEN_EXPIRATION: ${JWT_REFRESH_TOKEN_EXPIRATION:-604800000}
+      # 데이터베이스 자동 생성
+      MYSQL_DATABASE: mannal
 
-      # OAuth 카카오 설정
-      KAKAO_CLIENT_ID: ${KAKAO_CLIENT_ID}
-      KAKAO_CLIENT_SECRET: ${KAKAO_CLIENT_SECRET}
-      KAKAO_REDIRECT_URI: ${KAKAO_REDIRECT_URI}
+      # 시간대 설정
+      TZ: Asia/Seoul
 
-      # Spring 프로파일
-      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
+    # Docker 네임드 볼륨 사용 (데이터 영구 보존)
+    volumes:
+      - prod-mysql-data:/var/lib/mysql
 
-    # Lightsail Database와 통신하기 위해 호스트 네트워크 사용 안함
-    # 기본 bridge 네트워크 사용
+    # 독립적인 네트워크에 연결
     networks:
       - prod-network
 
-    # 로그 설정 (로그 파일 크기 제한)
+    # ========================================
+    # MySQL 헬스체크 설정
+    # ========================================
+    # Docker가 MySQL 컨테이너의 상태를 주기적으로 확인하는 설정
+    # Backend 컨테이너는 이 헬스체크가 통과되어야 시작됨 (depends_on 설정)
+    healthcheck:
+      # 헬스체크 명령어 (MySQL 컨테이너 내부에서 실행됨)
+      # - 호스트 서버에 MySQL 설치 불필요 (컨테이너 안에 이미 포함됨)
+      # - mysql:8 이미지에 mysqladmin 명령어가 이미 포함되어 있음
+      test:
+        [
+          "CMD",              # Docker에게 명령어를 직접 실행하라고 지시
+          "mysqladmin",       # MySQL 관리 도구 (컨테이너 내부에 포함됨)
+          "ping",             # MySQL 서버가 응답하는지 확인하는 명령
+          "-h", "localhost",  # 호스트: localhost (컨테이너 내부의 MySQL 서버)
+          "-u", "root",       # 사용자: root (MySQL 관리자 계정)
+          "-p${DB_PASSWORD}"  # 비밀번호: .env 파일의 DB_PASSWORD 값 사용
+        ]
+
+      # 헬스체크 실행 주기
+      # - MySQL 컨테이너가 시작된 후 10초마다 위 명령어를 실행
+      # - 너무 짧으면 서버 부하 증가, 너무 길면 장애 감지 지연
+      interval: 10s
+
+      # 헬스체크 타임아웃
+      # - 위 명령어가 5초 안에 응답하지 않으면 실패로 간주
+      # - MySQL이 과부하 상태거나 문제가 있을 때 감지
+      timeout: 5s
+
+      # 재시도 횟수
+      # - 헬스체크가 5번 연속 실패하면 컨테이너를 "unhealthy" 상태로 표시
+      # - 일시적인 네트워크 문제로 인한 오탐을 방지
+      retries: 5
+
+      # 초기 대기 시간 (Grace Period)
+      # - 컨테이너 시작 후 30초 동안은 헬스체크 실패를 무시
+      # - MySQL 서버가 완전히 초기화되는 시간을 고려
+      # - 이 기간 동안의 실패는 retries 카운트에 포함되지 않음
+      start_period: 30s
+
+    # ========================================
+    # 로그 설정
+    # ========================================
+    # Docker 컨테이너의 로그를 관리하는 설정
+    # - 로그가 무한정 증가하면 디스크 공간을 모두 차지할 수 있으므로 제한 필요
     logging:
+      # 로그 드라이버: json-file (Docker 기본 로그 드라이버)
+      # - 로그를 JSON 형식으로 파일에 저장
+      # - docker logs 명령으로 확인 가능
       driver: "json-file"
+
+      # 로그 파일 크기 및 개수 제한 옵션
       options:
+        # 로그 파일 최대 크기: 10MB
+        # - 한 로그 파일이 10MB를 초과하면 새 파일로 로테이션됨
         max-size: "10m"
+
+        # 보관할 로그 파일 개수: 최대 3개
+        # - 최신 3개 파일만 유지 (총 30MB: 10MB x 3)
+        # - 오래된 파일은 자동으로 삭제됨
+        # - 예: mysql.log.1, mysql.log.2, mysql.log.3
         max-file: "3"
 
+    # ========================================
+    # 재시작 정책
+    # ========================================
+    # 컨테이너가 중지되었을 때 자동으로 재시작하는 정책
+    # - unless-stopped: 수동으로 중지하지 않는 한 항상 재시작
+    #   * 서버 재부팅 시: 자동으로 재시작됨
+    #   * 컨테이너 crash 시: 자동으로 재시작됨
+    #   * 사용자가 docker stop으로 중지 시: 재시작하지 않음
+    # - 다른 옵션: no, always, on-failure
     restart: unless-stopped
 
   # ========================================
-  # Nginx (리버스 프록시 + 정적 파일) - 나중에 추가 가능
+  # Spring Boot 백엔드
   # ========================================
-  # nginx:
-  #   image: nginx:alpine
-  #   container_name: prod-nginx
-  #   ports:
-  #     - "80:80"
-  #     - "443:443"
-  #   volumes:
-  #     - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-  #     - ./nginx/conf.d:/etc/nginx/conf.d:ro
-  #     - ./frontend/build:/usr/share/nginx/html:ro
-  #   networks:
-  #     - prod-network
-  #   depends_on:
-  #     - backend
-  #   restart: unless-stopped
+  backend:
+    # ========================================
+    # Docker 이미지 설정
+    # ========================================
+    # GitHub Container Registry(GHCR)에서 미리 빌드된 이미지를 가져옴
+    # - ghcr.io: GitHub Container Registry 주소
+    # - icesnake72/myauth: 저장소명
+    # - latest: 태그 (가장 최신 버전)
+    # - 이 이미지는 GitHub Actions에서 자동으로 빌드되어 업로드됨
+    image: ghcr.io/icesnake72/myauth:latest
+
+    # ========================================
+    # 컨테이너 이름
+    # ========================================
+    # Docker에서 이 컨테이너를 식별하는 이름
+    # - docker ps, docker logs prod-backend 등의 명령에서 사용
+    container_name: prod-backend
+
+    # ========================================
+    # 포트 매핑
+    # ========================================
+    # 호스트(외부)와 컨테이너(내부) 포트 연결
+    # - "8080:9080" 형식: "호스트포트:컨테이너포트"
+    # - 외부에서 http://15.165.81.224:8080 으로 접속
+    # - 내부적으로는 컨테이너의 9080 포트로 전달됨
+    # - Spring Boot 앱은 컨테이너 내부에서 9080 포트로 실행됨
+    ports:
+      - "8080:9080"
+
+    # ========================================
+    # 환경 변수 설정
+    # ========================================
+    # Spring Boot 애플리케이션에서 사용하는 환경 변수들
+    # - 대부분 .env 파일에서 로드되어 보안 유지
+    environment:
+      # ===== 데이터베이스 연결 설정 =====
+      # MySQL 컨테이너에 연결하기 위한 JDBC URL
+      # - prod-mysql: Docker Compose 네트워크 내에서 MySQL 컨테이너 이름으로 접근
+      #   (IP 주소 대신 컨테이너 이름 사용 - Docker 내부 DNS가 자동 해석)
+      # - 3306: MySQL 기본 포트
+      # - mannal: 데이터베이스 이름
+      # - useSSL=false: 개발/테스트용 (프로덕션에서는 true 권장)
+      # - serverTimezone=Asia/Seoul: 서버 시간대 설정
+      # - connectionTimeZone=Asia/Seoul: 연결 시간대 설정
+      # - forceConnectionTimeZoneToSession=true: 세션 시간대 강제 설정
+      # - allowPublicKeyRetrieval=true: 공개 키 인증 허용
+      DB_URL: jdbc:mysql://prod-mysql:3306/mannal?useSSL=false&serverTimezone=Asia/Seoul&connectionTimeZone=Asia/Seoul&forceConnectionTimeZoneToSession=true&allowPublicKeyRetrieval=true
+
+      # MySQL 사용자명 (.env 파일에서 로드)
+      DB_USERNAME: ${DB_USERNAME}
+
+      # MySQL 비밀번호 (.env 파일에서 로드)
+      DB_PASSWORD: ${DB_PASSWORD}
+
+      # ===== JWT 토큰 설정 =====
+      # JWT 서명에 사용할 비밀 키 (.env 파일에서 로드)
+      # - 최소 256비트 (32자) 이상 권장
+      # - 이 키가 노출되면 누구나 토큰을 위조할 수 있으므로 절대 공개 금지
+      JWT_SECRET: ${JWT_SECRET}
+
+      # Access Token 만료 시간 (밀리초 단위)
+      # - 기본값: 3600000ms = 1시간
+      # - ${변수명:-기본값} 문법: .env에 값이 없으면 기본값 사용
+      JWT_ACCESS_TOKEN_EXPIRATION: ${JWT_ACCESS_TOKEN_EXPIRATION:-3600000}
+
+      # Refresh Token 만료 시간 (밀리초 단위)
+      # - 기본값: 604800000ms = 7일
+      JWT_REFRESH_TOKEN_EXPIRATION: ${JWT_REFRESH_TOKEN_EXPIRATION:-604800000}
+
+      # ===== OAuth 카카오 로그인 설정 =====
+      # 카카오 개발자 콘솔에서 발급받은 REST API 키
+      KAKAO_CLIENT_ID: ${KAKAO_CLIENT_ID}
+
+      # 카카오 Client Secret (보안 강화를 위해 설정)
+      KAKAO_CLIENT_SECRET: ${KAKAO_CLIENT_SECRET}
+
+      # 카카오 로그인 성공 후 리다이렉트될 백엔드 URL
+      # - 예: http://15.165.81.224:8080/auth/kakao/callback
+      KAKAO_REDIRECT_URI: ${KAKAO_REDIRECT_URI}
+
+      # ===== Spring 프로파일 설정 =====
+      # 어떤 환경 설정을 사용할지 지정
+      # - prod: 프로덕션 환경 (application-prod.yaml 사용)
+      # - dev: 개발 환경 (application-dev.yaml 사용)
+      # - 기본값: prod
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
+
+    # ========================================
+    # 네트워크 설정
+    # ========================================
+    # 이 컨테이너가 참여할 Docker 네트워크
+    # - prod-network: MySQL과 Backend가 통신하는 독립 네트워크
+    # - 같은 네트워크에 있어야 컨테이너 이름으로 서로 접근 가능
+    networks:
+      - prod-network
+
+    # ========================================
+    # 의존성 설정 (시작 순서 제어)
+    # ========================================
+    # 다른 서비스가 준비될 때까지 이 컨테이너의 시작을 지연
+    # - MySQL이 완전히 준비되기 전에 Backend가 시작하면 DB 연결 실패
+    depends_on:
+      mysql:
+        # 조건: MySQL의 헬스체크가 통과할 때까지 대기
+        # - 단순히 컨테이너가 시작된 것만으로는 불충분
+        # - MySQL이 실제로 연결을 받을 수 있는 상태여야 함
+        # - healthcheck에서 정의한 mysqladmin ping이 성공해야 함
+        condition: service_healthy
+
+    # ========================================
+    # 로그 설정
+    # ========================================
+    # MySQL과 동일한 로그 설정 (디스크 공간 관리)
+    logging:
+      # JSON 형식으로 로그 저장
+      driver: "json-file"
+
+      # 로그 파일 크기 및 개수 제한
+      options:
+        # 파일당 최대 10MB
+        max-size: "10m"
+
+        # 최대 3개 파일 보관 (총 30MB)
+        max-file: "3"
+
+    # ========================================
+    # 재시작 정책
+    # ========================================
+    # 컨테이너 자동 재시작 설정
+    # - unless-stopped: 수동 중지 전까지 항상 재시작
+    # - 서버 재부팅 시 자동으로 다시 시작됨
+    restart: unless-stopped
+
+# ========================================
+# Docker 볼륨 정의
+# ========================================
+# 컨테이너가 삭제되어도 데이터를 보존하는 영구 저장소
+volumes:
+  # MySQL 데이터 영구 보존용 볼륨
+  prod-mysql-data:
+    # 로컬 드라이버 사용 (호스트 파일시스템에 저장)
+    # - 다른 옵션: nfs, cifs 등 (네트워크 스토리지)
+    driver: local
+
+    # 볼륨 이름 명시적 지정
+    # - docker volume ls 명령으로 확인 가능
+    # - 위치: /var/lib/docker/volumes/prod-mysql-data (Linux 기준)
+    name: prod-mysql-data
 
 # ========================================
 # 네트워크 설정
 # ========================================
+# 컨테이너 간 통신을 위한 독립적인 네트워크
 networks:
   prod-network:
+    # 브리지 드라이버: 단일 호스트 내 컨테이너 간 통신
+    # - 다른 옵션: host, overlay(멀티 호스트), none
+    # - 브리지 네트워크는 컨테이너 이름으로 서로 접근 가능 (내부 DNS 제공)
     driver: bridge
+
+    # 네트워크 이름 명시적 지정
+    # - docker network ls 명령으로 확인 가능
+    # - 이 네트워크에 연결된 컨테이너들만 서로 통신 가능 (격리)
     name: prod-network
 
 # ================================================
 # 사용 방법
 # ================================================
 #
-# ⚠️ 주의: .env 파일은 GitHub Actions가 자동으로 생성합니다!
-#          수동으로 .env 파일을 만들 필요 없습니다.
+# 1. GitHub Actions 자동 배포 (권장)
+#    - git push origin main
+#    - GitHub Actions가 자동으로 배포
 #
-# 1. GitHub Actions로 자동 배포 (권장)
-#    - GitHub Secrets에 환경변수 등록 (DB_URL, JWT_SECRET 등)
-#    - git push origin main 실행
-#    - GitHub Actions가 자동으로:
-#      * Docker 이미지 빌드
-#      * GHCR에 푸시
-#      * Lightsail 서버에 .env 파일 생성
-#      * 컨테이너 재시작
-#
-# 2. 수동 배포 (테스트용)
-#    Lightsail 서버에서:
-#    docker-compose -f docker-compose.prod.yml up -d
+# 2. 수동 배포 (Lightsail 서버에서)
+#    docker compose -f docker-compose.prod.yml up -d --build
 #
 # 3. 로그 확인
-#    docker-compose -f docker-compose.prod.yml logs -f backend
+#    docker compose -f docker-compose.prod.yml logs -f backend
+#    docker compose -f docker-compose.prod.yml logs -f mysql
 #
-# 4. 컨테이너 재시작
-#    docker-compose -f docker-compose.prod.yml restart backend
+# 4. 서비스 재시작
+#    docker compose -f docker-compose.prod.yml restart backend
+#    docker compose -f docker-compose.prod.yml restart mysql
 #
-# 5. 중지
-#    docker-compose -f docker-compose.prod.yml down
+# 5. 전체 중지
+#    docker compose -f docker-compose.prod.yml down
+#
+# 6. 데이터 포함 완전 삭제
+#    docker compose -f docker-compose.prod.yml down -v
 #
 # ================================================
-# 주요 변경 사항 (Lightsail Database 사용)
+# 네트워크 구조
 # ================================================
 #
-# - MySQL 컨테이너 제거: Lightsail Database 사용
-# - .env 파일 자동 생성: GitHub Actions에서 관리
-# - 포트 80 직접 노출: Nginx 없이 직접 접근
-# - 접속 주소: http://15.165.81.224
+#  ┌─────────────────────────────────────────────┐
+#  │      prod-network (독립 네트워크)            │
+#  │                                             │
+#  │   ┌───────────┐          ┌──────────┐     │
+#  │   │ prod-mysql│ <------> │ Backend  │     │
+#  │   │   :3306   │          │  :9080   │     │
+#  │   └───────────┘          └──────────┘     │
+#  │        ↑                       ↑           │
+#  └────────┼───────────────────────┼───────────┘
+#           │                       │
+#     localhost:3306         localhost:8080
+#           │                       │
+#  ┌────────▼───────────────────────▼───────────┐
+#  │        AWS Lightsail 서버                   │
+#  │        15.165.81.224                        │
+#  └─────────────────────────────────────────────┘
 #
 # ================================================

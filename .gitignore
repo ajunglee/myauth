@@ -64,3 +64,16 @@ credentials.*
 *credentials*
 *.crt
 *.cer
+
+### 개인 테스트/메모 파일 ###
+# 테스트 SQL 파일
+*.sql
+
+# 개인 메모 및 명령어 파일
+*_cmd.txt
+login_process.txt
+test_api.txt
+
+# 스크린샷 및 임시 이미지
+*-20*.png
+*-20*.jpg

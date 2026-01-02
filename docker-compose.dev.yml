@@ -1,0 +1,197 @@
+# ================================================
+# 개발 환경 Docker Compose
+# 기존 MySQL(mysql-8) + Spring Boot 백엔드 독립 네트워크 구성
+# ================================================
+#
+# 특징:
+# 1. 기존에 실행 중인 mysql-8 컨테이너를 그대로 사용
+# 2. 백엔드와 MySQL이 독립적인 네트워크(myauth-network)에서 통신
+# 3. 외부에서는 포트를 통해서만 접근 가능
+# 4. 간편한 백엔드 관리 (빌드, 재시작 등)
+#
+# ================================================
+
+services:
+
+  # ========================================
+  # Spring Boot 백엔드
+  # ========================================
+  backend:
+    # Dockerfile을 사용하여 이미지 빌드
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: myauth-backend-dev
+
+    # 호스트의 9080 포트와 연결 (외부 접근용)
+    ports:
+      - "9080:9080"
+
+    # 환경 변수 설정
+    environment:
+      # 데이터베이스 연결 설정
+      # 기존 mysql-8 컨테이너 이름으로 접근 (같은 네트워크 내에서)
+      DB_URL: jdbc:mysql://mysql-8:3306/mannal?useSSL=false&serverTimezone=Asia/Seoul&connectionTimeZone=Asia/Seoul&forceConnectionTimeZoneToSession=true&allowPublicKeyRetrieval=true
+      DB_USERNAME: root
+      DB_PASSWORD: 1234
+
+      # JWT 토큰 설정
+      JWT_SECRET: mySecretKeyForJWTTokenGenerationThisKeyMustBeLongEnoughForHS512Algorithm
+      JWT_ACCESS_TOKEN_EXPIRATION: 900000     # 15분 (밀리초)
+      JWT_REFRESH_TOKEN_EXPIRATION: 3600000   # 1시간 (밀리초)
+
+      # OAuth 카카오 설정
+      KAKAO_CLIENT_ID: f0bfa98dfa477735feeb8dbfdfa1d105
+      KAKAO_CLIENT_SECRET: U4JgTAZGirCvVGmmnvuSlsoWlKFPstvV
+      KAKAO_REDIRECT_URI: http://localhost:9080/auth/kakao/callback
+
+      # Spring 프로파일 (개발 환경)
+      SPRING_PROFILES_ACTIVE: dev
+
+    # 독립적인 네트워크에 연결
+    networks:
+      - myauth-network
+
+    # 재시작 정책: 수동 중지하지 않는 한 항상 재시작
+    restart: unless-stopped
+
+# ========================================
+# 네트워크 정의
+# ========================================
+networks:
+  # 독립적인 네트워크 (myauth 프로젝트 전용)
+  # 기존 mysql-8 컨테이너도 이 네트워크에 연결되어야 함
+  myauth-network:
+    driver: bridge
+    name: myauth-network
+
+# ================================================
+# 사용 방법
+# ================================================
+#
+# ⚠️ 사전 준비 (최초 1회만 실행)
+# ================================================
+# 수동으로 네트워크 생성
+# docker network create myauth-network
+#
+# 기존 mysql-8 컨테이너를 myauth-network에 연결
+# (이미 연결되어 있으면 "already exists" 메시지가 나오며 무시하면 됨)
+#
+# docker network connect myauth-network mysql-8
+#
+# ================================================
+# 서비스 실행
+# ================================================
+#
+# 1. 전체 서비스 시작 (빌드 포함)
+#    docker-compose -f docker-compose.dev.yml up -d --build
+#
+# 2. 서비스 시작 (빌드 제외)
+#    docker-compose -f docker-compose.dev.yml up -d
+#
+# 3. 로그 확인
+#    docker-compose -f docker-compose.dev.yml logs -f backend   # 백엔드 로그
+#    docker logs -f mysql-8                                     # MySQL 로그
+#
+# 4. 서비스 상태 확인
+#    docker-compose -f docker-compose.dev.yml ps
+#    docker ps | grep mysql-8                                   # MySQL 상태
+#
+# 5. 서비스 중지
+#    docker-compose -f docker-compose.dev.yml stop
+#
+# 6. 서비스 재시작
+#    docker-compose -f docker-compose.dev.yml restart
+#
+# 7. 서비스 중지 및 컨테이너 삭제 (MySQL은 그대로 유지됨)
+#    docker-compose -f docker-compose.dev.yml down
+#
+# 8. 백엔드만 재빌드 및 재시작
+#    docker-compose -f docker-compose.dev.yml up -d --build backend
+#
+# 9. MySQL 접속 (호스트에서)
+#    mysql -h 127.0.0.1 -P 3306 -u root -p1234
+#
+# 10. MySQL 접속 (컨테이너 내부에서)
+#     docker exec -it mysql-8 mysql -u root -p1234
+#
+# 11. 백엔드 컨테이너 내부 접속
+#     docker exec -it myauth-backend-dev sh
+#
+# 12. 네트워크 연결 확인
+#     docker network inspect myauth-network
+#     # mysql-8과 myauth-backend-dev가 모두 표시되어야 함
+#
+# ================================================
+# 네트워크 구조
+# ================================================
+#
+#  ┌─────────────────────────────────────────────┐
+#  │      myauth-network (독립 네트워크)          │
+#  │                                             │
+#  │   ┌──────────┐            ┌──────────┐    │
+#  │   │ mysql-8  │ <--------> │ Backend  │    │
+#  │   │  :3306   │            │  :9080   │    │
+#  │   │ (기존)   │            │ (신규)   │    │
+#  │   └──────────┘            └──────────┘    │
+#  │        ↑                        ↑          │
+#  └────────┼────────────────────────┼──────────┘
+#           │                        │
+#      포트 매핑                 포트 매핑
+#   (localhost:3306)        (localhost:9080)
+#           │                        │
+#  ┌────────▼────────────────────────▼──────────┐
+#  │              호스트 머신                     │
+#  └─────────────────────────────────────────────┘
+#
+# 주요 특징:
+# - mysql-8: 기존에 실행 중이던 MySQL 컨테이너 (재사용)
+# - Backend: docker-compose로 새로 생성된 백엔드 컨테이너
+# - myauth-network 내에서 컨테이너 이름으로 통신
+#   (백엔드 → mysql-8:3306으로 접근)
+# - 외부(호스트)에서는 localhost:3306, localhost:9080으로 접근
+# - 네트워크가 독립적이므로 다른 Docker 네트워크와 격리됨
+#
+# ================================================
+# 환경 변수를 .env 파일로 분리하기 (선택사항)
+# ================================================
+#
+# 1. 프로젝트 루트에 .env 파일 생성
+#
+# 2. .env 파일 내용 예시:
+#    DB_PASSWORD=1234
+#    JWT_SECRET=mySecretKeyForJWTTokenGenerationThisKeyMustBeLongEnoughForHS512Algorithm
+#    KAKAO_CLIENT_ID=f0bfa98dfa477735feeb8dbfdfa1d105
+#    KAKAO_CLIENT_SECRET=U4JgTAZGirCvVGmmnvuSlsoWlKFPstvV
+#
+# 3. docker-compose.dev.yml에서 사용:
+#    environment:
+#      DB_PASSWORD: ${DB_PASSWORD}
+#      JWT_SECRET: ${JWT_SECRET}
+#
+# 4. .env 파일은 .gitignore에 추가하여 Git에 커밋하지 않기
+#
+# ================================================
+# 트러블슈팅
+# ================================================
+#
+# Q1. "포트가 이미 사용 중입니다" 오류
+# A1. 다른 MySQL이나 백엔드가 실행 중인지 확인
+#     lsof -ti:3306 | xargs kill -9
+#     lsof -ti:9080 | xargs kill -9
+#
+# Q2. MySQL 연결 실패
+# A2. MySQL 헬스체크 로그 확인
+#     docker-compose -f docker-compose.dev.yml logs mysql
+#
+# Q3. 백엔드가 MySQL을 찾지 못함
+# A3. 네트워크 확인
+#     docker network inspect myauth-network
+#
+# Q4. 데이터가 사라졌어요
+# A4. 볼륨 확인
+#     docker volume ls | grep myauth
+#     docker volume inspect myauth-mysql-data
+#
+# ================================================

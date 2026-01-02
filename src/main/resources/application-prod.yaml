@@ -22,10 +22,22 @@ logging:
     max-history: 30
     total-size-cap: 1GB
 
-# JPA 설정 - 프로덕션 환경에서는 SQL 로그 비활성화
+# JPA 설정 - 프로덕션 환경
 spring:
   jpa:
+    # SQL 로그 비활성화 (성능 향상)
     show-sql: false
+
+    # Hibernate DDL 자동 생성 전략
+    hibernate:
+      # ddl-auto 옵션:
+      # - none: 아무것도 하지 않음 (권장 - 프로덕션)
+      # - validate: 엔티티와 테이블 매핑 검증만 (스키마 불일치 시 에러)
+      # - update: 테이블이 없으면 생성, 있으면 컬럼 추가 (삭제는 안함)
+      # - create: 시작 시 테이블 삭제 후 재생성 (데이터 손실 위험!)
+      # - create-drop: 종료 시 테이블 삭제 (테스트용)
+      ddl-auto: update  # 최초 배포 시 테이블 자동 생성, 이후 스키마 변경 시 자동 업데이트
+
     properties:
       hibernate:
         format_sql: false

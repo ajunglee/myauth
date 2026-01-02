@@ -207,7 +207,7 @@ jobs:
         uses: appleboy/ssh-action@v1.0.0
         with:
           # Lightsail 서버 IP 주소
-          # - GitHub Secrets에 저장된 값 사용 (예: 13.124.241.22)
+          # - GitHub Secrets에 저장된 값 사용 (예: 15.165.81.224)
           # - 보안을 위해 코드에 직접 노출하지 않음
           host: ${{ secrets.LIGHTSAIL_HOST }}
 
@@ -236,14 +236,15 @@ jobs:
               echo "Docker Compose 플러그인이 설치되어 있지 않습니다. 자동으로 설치합니다..."
 
               # Docker Compose V2 플러그인 디렉토리 생성
-              sudo mkdir -p /usr/local/lib/docker/cli-plugins
+              # Amazon Linux 2023 권장 경로: /usr/libexec/docker/cli-plugins
+              sudo mkdir -p /usr/libexec/docker/cli-plugins
 
               # Docker Compose V2 플러그인 다운로드 (최신 버전)
-              sudo curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 \
-                -o /usr/local/lib/docker/cli-plugins/docker-compose
+              sudo curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-$(uname -m) \
+                -o /usr/libexec/docker/cli-plugins/docker-compose
 
               # 실행 권한 부여
-              sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+              sudo chmod +x /usr/libexec/docker/cli-plugins/docker-compose
 
               echo "Docker Compose 플러그인 설치 완료!"
               sudo docker compose version
@@ -252,21 +253,20 @@ jobs:
               sudo docker compose version
             fi
 
-            # ===== 1. 프로젝트 디렉토리 생성 및 이동 =====
-            # ~/myauth: 서버의 홈 디렉토리 아래 myauth 폴더
+            # ===== 1. 이전 배포 정리 및 디렉토리 준비 =====
+            # 기존 프로젝트 디렉토리 삭제 후 새로 생성
+            rm -rf ~/myauth
             mkdir -p ~/myauth
             cd ~/myauth
 
-            # ===== 2. .env 파일 자동 생성 =====
-            # GitHub Secrets의 환경변수들로 .env 파일을 자동 생성
-            # - 서버에서 수동으로 설정할 필요 없음
-            # - 모든 민감한 정보는 GitHub Secrets에서 안전하게 관리
-            cat > .env << 'EOF'
-            # GitHub 사용자명
-            GITHUB_USERNAME=icesnake72
+            # ===== 2. GitHub 저장소 클론 =====
+            # docker-compose.prod.yml 등 필요한 설정 파일 가져오기
+            git clone https://github.com/icesnake72/myauth.git .
 
-            # 데이터베이스 설정 (Lightsail Database)
-            DB_URL=${{ secrets.DB_URL }}
+            # ===== 3. .env 파일 자동 생성 =====
+            # GitHub Secrets의 환경변수들로 .env 파일을 자동 생성
+            cat > .env << 'EOF'
+            # 데이터베이스 설정 (MySQL 컨테이너)
             DB_USERNAME=${{ secrets.DB_USERNAME }}
             DB_PASSWORD=${{ secrets.DB_PASSWORD }}
 
@@ -278,62 +278,10 @@ jobs:
             # 카카오 OAuth 설정
             KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}
             KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}
-            KAKAO_REDIRECT_URI=http://13.124.241.22:8080/auth/kakao/callback
+            KAKAO_REDIRECT_URI=http://15.165.81.224:8080/auth/kakao/callback
 
             # Spring 프로파일
             SPRING_PROFILES_ACTIVE=prod
-            EOF
-
-            # ===== 3. docker-compose.prod.yml 파일 자동 생성 =====
-            # 프로덕션 환경 Docker Compose 설정 파일도 자동 생성
-            # - 서버에 수동으로 파일을 업로드할 필요 없음
-            # - 설정이 항상 최신 상태로 유지됨
-            cat > docker-compose.prod.yml << 'EOF'
-            # ================================================
-            # 프로덕션 환경 Docker Compose
-            # AWS Lightsail 배포용 (GitHub Actions 자동 생성)
-            # ================================================
-
-            services:
-              # Spring Boot 백엔드
-              backend:
-                # GitHub Container Registry에서 이미지 가져오기
-                image: ghcr.io/icesnake72/myauth:latest
-                container_name: prod-backend
-
-                # 백엔드 포트 노출 (프론트엔드는 80 포트 사용 예정)
-                ports:
-                  - "8080:9080"
-
-                environment:
-                  # 환경 변수는 .env 파일에서 자동 로드
-                  DB_URL: ${DB_URL}
-                  DB_USERNAME: ${DB_USERNAME}
-                  DB_PASSWORD: ${DB_PASSWORD}
-                  JWT_SECRET: ${JWT_SECRET}
-                  JWT_ACCESS_TOKEN_EXPIRATION: ${JWT_ACCESS_TOKEN_EXPIRATION:-3600000}
-                  JWT_REFRESH_TOKEN_EXPIRATION: ${JWT_REFRESH_TOKEN_EXPIRATION:-604800000}
-                  KAKAO_CLIENT_ID: ${KAKAO_CLIENT_ID}
-                  KAKAO_CLIENT_SECRET: ${KAKAO_CLIENT_SECRET}
-                  KAKAO_REDIRECT_URI: ${KAKAO_REDIRECT_URI}
-                  SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
-
-                networks:
-                  - prod-network
-
-                # 로그 설정 (로그 파일 크기 제한)
-                logging:
-                  driver: "json-file"
-                  options:
-                    max-size: "10m"
-                    max-file: "3"
-
-                restart: unless-stopped
-
-            networks:
-              prod-network:
-                driver: bridge
-                name: prod-network
             EOF
 
             # ===== 4. GitHub Container Registry(GHCR)에 로그인 =====
@@ -354,25 +302,27 @@ jobs:
             # docker compose pull: 레지스트리에서 최신 이미지를 다운로드
             # - Docker Compose V2 플러그인 사용 (docker compose, 하이픈 없음)
             # - -f docker-compose.prod.yml: 프로덕션 설정 파일 지정
-            # - backend: backend 서비스의 이미지만 다운로드
+            # - 모든 서비스의 이미지를 다운로드 (MySQL + Backend)
             #
             # 다운로드되는 이미지:
+            # - mysql:8 (Docker Hub 공식 이미지)
             # - ghcr.io/icesnake72/myauth:latest (이전 단계에서 푸시한 이미지)
             # - sudo: Docker daemon 접근을 위해 관리자 권한 필요
-            sudo docker compose -f docker-compose.prod.yml pull backend
+            sudo docker compose -f docker-compose.prod.yml pull
 
             # ===== 6. 컨테이너 시작/재시작 (무중단 배포) =====
             # docker compose up: 컨테이너 생성 및 시작
             # - Docker Compose V2 플러그인 사용 (docker compose, 하이픈 없음)
             # - -d: 백그라운드 실행 (detached mode)
-            # - backend: backend 서비스만 재시작
+            # - 모든 서비스 시작 (MySQL + Backend)
             #
             # 동작 방식:
             # 1. 이미 실행 중이면: 새 이미지로 교체하고 재시작
             # 2. 실행 중이 아니면: 새로 시작
-            # 3. Lightsail Database는 별도 관리되므로 영향 없음
+            # 3. depends_on 설정에 따라 MySQL이 먼저 시작되고 healthy 상태가 되면 Backend가 시작됨
+            # 4. MySQL 데이터는 prod-mysql-data 볼륨에 영구 보존됨
             # - sudo: Docker daemon 접근을 위해 관리자 권한 필요
-            sudo docker compose -f docker-compose.prod.yml up -d backend
+            sudo docker compose -f docker-compose.prod.yml up -d
 
             # ===== 7. 사용하지 않는 이미지 정리 =====
             # docker image prune: 불필요한 이미지 삭제로 디스크 공간 확보
@@ -380,7 +330,7 @@ jobs:
             # - -f: 확인 없이 강제 삭제 (force)
             #
             # 삭제되는 이미지:
-            # - 이전 버전의 backend 이미지
+            # - 이전 버전의 MySQL 및 Backend 이미지
             # - 태그가 없는 중간 레이어 이미지 (dangling images)
             # - sudo: Docker daemon 접근을 위해 관리자 권한 필요
             sudo docker image prune -af
@@ -409,10 +359,24 @@ jobs:
 # GitHub Secrets 설정 필요:
 # ================================================
 #
-# 1. LIGHTSAIL_HOST: 13.124.241.22
-# 2. LIGHTSAIL_USER: ec2-user (또는 ubuntu)
-# 3. LIGHTSAIL_SSH_KEY: SSH private key 내용 (.pem 파일)
-# 4. GITHUB_TOKEN: 자동 제공됨 (별도 설정 불필요)
+# 서버 접속 관련:
+# 1. LIGHTSAIL_HOST: AWS Lightsail 서버 IP (예: 15.165.81.224)
+# 2. LIGHTSAIL_USER: SSH 접속 사용자명 (ec2-user 또는 ubuntu)
+# 3. LIGHTSAIL_SSH_KEY: SSH private key 내용 (.pem 파일 전체 내용)
+#
+# 데이터베이스 관련:
+# 4. DB_USERNAME: MySQL 사용자명 (예: root)
+# 5. DB_PASSWORD: MySQL 비밀번호
+#
+# JWT 토큰 관련:
+# 6. JWT_SECRET: JWT 서명에 사용할 비밀키 (최소 256비트 권장)
+#
+# OAuth 카카오 관련:
+# 7. KAKAO_CLIENT_ID: 카카오 REST API 키
+# 8. KAKAO_CLIENT_SECRET: 카카오 Client Secret
+#
+# 자동 제공:
+# 9. GITHUB_TOKEN: 자동 제공됨 (별도 설정 불필요)
 #
 # GitHub Repository → Settings → Secrets and variables → Actions
 # → New repository secret 클릭하여 추가
