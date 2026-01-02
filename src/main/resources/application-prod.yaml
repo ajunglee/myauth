@@ -56,7 +56,7 @@ app:
   # CORS 허용 출처 (프로덕션 IP)
   cors:
     allowed-origins:
-      - http://15.165.81.224          # 프로덕션 프론트엔드 (포트 80)
+      - ${FRONTEND_URL:http://localhost}  # 프로덕션 프론트엔드 (환경 변수로 설정)
     allowed-methods:
       - GET
       - POST
@@ -67,7 +67,7 @@ app:
 
   # OAuth 리다이렉트 설정
   oauth:
-    kakao-redirect-url: http://15.165.81.224/oauth/callback  # 카카오 로그인 성공 후 프론트엔드로 리다이렉트 (포트 80)
+    kakao-redirect-url: ${FRONTEND_URL:http://localhost}/oauth/callback  # 카카오 로그인 성공 후 프론트엔드로 리다이렉트 (환경 변수로 설정)
 
 
 # 프로덕션 환경 실행 (Docker 내부에서 자동 설정)

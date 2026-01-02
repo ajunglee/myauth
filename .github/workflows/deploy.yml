@@ -220,7 +220,7 @@ jobs:
         uses: appleboy/ssh-action@v1.0.0
         with:
           # Lightsail 서버 IP 주소
-          # - GitHub Secrets에 저장된 값 사용 (예: 15.165.81.224)
+          # - GitHub Secrets에 저장된 값 사용 (예: server-ip-address)
           # - 보안을 위해 코드에 직접 노출하지 않음
           host: ${{ secrets.LIGHTSAIL_HOST }}
 
@@ -243,29 +243,6 @@ jobs:
           # 서버에서 실행할 배포 스크립트
           # - | 기호: 여러 줄 명령어를 순서대로 실행
           script: |
-            # ===== 0. Docker Compose 설치 확인 및 자동 설치 =====
-            # Docker Compose가 설치되어 있지 않으면 자동으로 설치
-            if ! sudo docker compose version &> /dev/null; then
-              echo "Docker Compose 플러그인이 설치되어 있지 않습니다. 자동으로 설치합니다..."
-
-              # Docker Compose V2 플러그인 디렉토리 생성
-              # Amazon Linux 2023 권장 경로: /usr/libexec/docker/cli-plugins
-              sudo mkdir -p /usr/libexec/docker/cli-plugins
-
-              # Docker Compose V2 플러그인 다운로드 (최신 버전)
-              sudo curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-$(uname -m) \
-                -o /usr/libexec/docker/cli-plugins/docker-compose
-
-              # 실행 권한 부여
-              sudo chmod +x /usr/libexec/docker/cli-plugins/docker-compose
-
-              echo "Docker Compose 플러그인 설치 완료!"
-              sudo docker compose version
-            else
-              echo "Docker Compose 플러그인이 이미 설치되어 있습니다."
-              sudo docker compose version
-            fi
-
             # ===== 1. 디렉토리 준비 =====
             # 디렉토리가 없으면 생성 (SCP로 전송된 파일 유지)
             mkdir -p ~/myauth
@@ -291,7 +268,10 @@ jobs:
             # 카카오 OAuth 설정
             KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}
             KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}
-            KAKAO_REDIRECT_URI=http://15.165.81.224:8080/auth/kakao/callback
+            KAKAO_REDIRECT_URI=${{ secrets.KAKAO_REDIRECT_URI }}
+
+            # 프론트엔드 URL 설정 (CORS 및 OAuth 리다이렉트용)
+            FRONTEND_URL=${{ secrets.FRONTEND_URL }}
 
             # Spring 프로파일
             SPRING_PROFILES_ACTIVE=prod
@@ -373,7 +353,7 @@ jobs:
 # ================================================
 #
 # 서버 접속 관련:
-# 1. LIGHTSAIL_HOST: AWS Lightsail 서버 IP (예: 15.165.81.224)
+# 1. LIGHTSAIL_HOST: AWS Lightsail 서버 IP (예: server-ip-address)
 # 2. LIGHTSAIL_USER: SSH 접속 사용자명 (ec2-user 또는 ubuntu)
 # 3. LIGHTSAIL_SSH_KEY: SSH private key 내용 (.pem 파일 전체 내용)
 #

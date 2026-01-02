@@ -58,7 +58,7 @@
              ↓
     ┌──────────────────────────┐
     │ AWS Lightsail 서버       │
-    │ IP: 15.165.81.224        │
+    │ IP: server-ip-address        │
     │ ┌──────────────────────┐ │
     │ │ MySQL 컨테이너       │ │
     │ │ - 데이터베이스       │ │
@@ -105,7 +105,7 @@
 
 #### 5. AWS Lightsail (프로덕션 서버)
 - **역할:** 실제 애플리케이션이 실행되는 클라우드 서버입니다.
-- **IP 주소:** 15.165.81.224 (고정 IP)
+- **IP 주소:** server-ip-address (고정 IP)
 - **OS:** Amazon Linux 2023
 - **Docker 컨테이너:**
   - **MySQL 컨테이너:** 데이터베이스 (포트 3306)
@@ -142,7 +142,7 @@
 - [ ] **AWS Lightsail 인스턴스** 생성 완료
 - [ ] **SSH 키 파일** (`.pem` 파일) 다운로드 및 보관
 - [ ] **GitHub 저장소** 생성 및 코드 업로드 완료
-- [ ] **Lightsail IP 주소** 확인 (예: 15.165.81.224)
+- [ ] **Lightsail IP 주소** 확인 (예: server-ip-address)
 
 #### 권장 항목
 
@@ -152,7 +152,7 @@
 ### 1. AWS Lightsail 인스턴스
 
 #### 필요한 사양
-- **IP 주소:** 15.165.81.224 (고정 IP)
+- **IP 주소:** server-ip-address (고정 IP)
 - **운영체제:** Amazon Linux 2023 또는 Ubuntu 22.04
 - **최소 사양:**
   - RAM: 1GB 이상 (권장: 2GB)
@@ -229,10 +229,10 @@ mv ~/Downloads/LightsailDefaultKey-ap-northeast-2.pem ~/.ssh/
 #### SSH 접속 테스트
 ```bash
 # Amazon Linux 2023
-ssh -i ~/.ssh/LightsailDefaultKey-ap-northeast-2.pem ec2-user@15.165.81.224
+ssh -i ~/.ssh/LightsailDefaultKey-ap-northeast-2.pem ec2-user@server-ip-address
 
 # Ubuntu
-ssh -i ~/.ssh/LightsailDefaultKey-ap-northeast-2.pem ubuntu@15.165.81.224
+ssh -i ~/.ssh/LightsailDefaultKey-ap-northeast-2.pem ubuntu@server-ip-address
 
 # 성공하면 서버 터미널이 열립니다
 ```
@@ -246,7 +246,7 @@ ssh -i ~/.ssh/LightsailDefaultKey-ap-northeast-2.pem ubuntu@15.165.81.224
 4. 보안 탭 → Client Secret 활성화 및 복사 (KAKAO_CLIENT_SECRET)
 5. 플랫폼 설정 → Web → Redirect URI 추가:
    ```
-   http://15.165.81.224/auth/kakao/callback
+   http://server-ip-address/auth/kakao/callback
    ```
 
 ---
@@ -261,19 +261,19 @@ ssh -i ~/.ssh/LightsailDefaultKey-ap-northeast-2.pem ubuntu@15.165.81.224
 
 **Amazon Linux 2023의 경우:**
 ```bash
-ssh -i ~/.ssh/LightsailDefaultKey-ap-northeast-2.pem ec2-user@15.165.81.224
+ssh -i ~/.ssh/LightsailDefaultKey-ap-northeast-2.pem ec2-user@server-ip-address
 ```
 
 **Ubuntu의 경우:**
 ```bash
-ssh -i ~/.ssh/LightsailDefaultKey-ap-northeast-2.pem ubuntu@15.165.81.224
+ssh -i ~/.ssh/LightsailDefaultKey-ap-northeast-2.pem ubuntu@server-ip-address
 ```
 
 #### 명령어 설명
 - `ssh`: 원격 서버에 안전하게 접속하는 명령
 - `-i ~/.ssh/LightsailDefaultKey-ap-northeast-2.pem`: 인증에 사용할 SSH 키 파일 지정
 - `ec2-user` 또는 `ubuntu`: 서버 접속 사용자명
-- `15.165.81.224`: 서버 IP 주소
+- `server-ip-address`: 서버 IP 주소
 
 #### 접속 성공 확인
 접속에 성공하면 다음과 같은 화면이 나타납니다:
@@ -365,7 +365,7 @@ docker --version
 exit
 
 # 다시 접속
-ssh -i ~/.ssh/LightsailDefaultKey-ap-northeast-2.pem ec2-user@15.165.81.224
+ssh -i ~/.ssh/LightsailDefaultKey-ap-northeast-2.pem ec2-user@server-ip-address
 ```
 
 #### Docker 작동 테스트
@@ -487,7 +487,7 @@ Lightsail 서버의 IP 주소를 저장합니다.
    ```
 3. **Secret** 입력란에 IP 주소 입력:
    ```
-   15.165.81.224
+   server-ip-address
    ```
 4. **Add secret** 클릭
 
@@ -876,7 +876,7 @@ GitHub Actions를 사용하지 않고 서버에서 직접 배포하려면:
 
 ```bash
 # 1. Lightsail 서버 SSH 접속
-ssh -i ~/.ssh/your-key.pem ec2-user@15.165.81.224
+ssh -i ~/.ssh/your-key.pem ec2-user@server-ip-address
 
 # 2. 프로젝트 디렉토리로 이동 (없으면 생성)
 mkdir -p ~/myauth && cd ~/myauth
@@ -893,7 +893,7 @@ JWT_ACCESS_TOKEN_EXPIRATION=3600000
 JWT_REFRESH_TOKEN_EXPIRATION=604800000
 KAKAO_CLIENT_ID=your_kakao_client_id
 KAKAO_CLIENT_SECRET=your_kakao_client_secret
-KAKAO_REDIRECT_URI=http://15.165.81.224:8080/auth/kakao/callback
+KAKAO_REDIRECT_URI=http://server-ip-address:8080/auth/kakao/callback
 SPRING_PROFILES_ACTIVE=prod
 EOF
 
@@ -944,10 +944,10 @@ docker compose -f docker-compose.prod.yml logs --tail=100 backend
 
 ```bash
 # Health Check
-curl http://15.165.81.224/health
+curl http://server-ip-address/health
 
 # 회원가입 테스트
-curl -X POST http://15.165.81.224/api/auth/signup \
+curl -X POST http://server-ip-address/api/auth/signup \
   -H "Content-Type: application/json" \
   -d '{
     "email": "test@example.com",
@@ -1097,7 +1097,7 @@ docker compose -f docker-compose.prod.yml up -d
 docker exec prod-mysql mysqldump -u root -p myauth > backup_$(date +%Y%m%d).sql
 
 # 백업 파일 다운로드 (로컬 PC에서)
-scp -i /path/to/your-key.pem ec2-user@15.165.81.224:~/backup_*.sql ./
+scp -i /path/to/your-key.pem ec2-user@server-ip-address:~/backup_*.sql ./
 ```
 
 ---
@@ -1180,7 +1180,7 @@ scp -i /path/to/your-key.pem ec2-user@15.165.81.224:~/backup_*.sql ./
   ✓ JWT_SECRET               (JWT 토큰 서명 키)
   ✓ KAKAO_CLIENT_ID          (카카오 REST API 키)
   ✓ KAKAO_CLIENT_SECRET      (카카오 Client Secret)
-  ✓ LIGHTSAIL_HOST           (서버 IP: 15.165.81.224)
+  ✓ LIGHTSAIL_HOST           (서버 IP: server-ip-address)
   ✓ LIGHTSAIL_SSH_KEY        (SSH 키 전체 내용)
   ✓ LIGHTSAIL_USER           (SSH 사용자: ec2-user 또는 ubuntu)
   ```
@@ -1215,10 +1215,10 @@ scp -i /path/to/your-key.pem ec2-user@15.165.81.224:~/backup_*.sql ./
 - [ ] **SSH 접속 테스트 성공**
   ```bash
   # Amazon Linux 2023
-  ssh -i ~/.ssh/your-key.pem ec2-user@15.165.81.224
+  ssh -i ~/.ssh/your-key.pem ec2-user@server-ip-address
 
   # Ubuntu
-  ssh -i ~/.ssh/your-key.pem ubuntu@15.165.81.224
+  ssh -i ~/.ssh/your-key.pem ubuntu@server-ip-address
   ```
 
 #### 1.4 Lightsail 서버 환경 설정 확인
@@ -1267,7 +1267,7 @@ SSH로 서버에 접속하여 다음 항목들을 확인합니다:
 
   # SSH 재접속 필요
   exit
-  ssh -i ~/.ssh/your-key.pem ec2-user@15.165.81.224
+  ssh -i ~/.ssh/your-key.pem ec2-user@server-ip-address
   ```
 
 #### 1.5 카카오 OAuth 설정 확인 (선택사항)
@@ -1281,7 +1281,7 @@ SSH로 서버에 접속하여 다음 항목들을 확인합니다:
 
   카카오 개발자 콘솔 → 내 애플리케이션 → 앱 설정 → 플랫폼 → Web → Redirect URI에 추가:
   ```
-  http://15.165.81.224:8080/auth/kakao/callback
+  http://server-ip-address:8080/auth/kakao/callback
   ```
 
 ---
@@ -1457,14 +1457,14 @@ SSH로 Lightsail 서버에 접속하여 다음 항목들을 확인합니다.
 - [ ] **Health Check 엔드포인트 테스트**
   ```bash
   # 서버 또는 로컬 PC에서 실행
-  curl http://15.165.81.224:8080/health
+  curl http://server-ip-address:8080/health
   ```
 
   예상 응답: `200 OK` 또는 헬스 체크 JSON 응답
 
 - [ ] **회원가입 API 테스트**
   ```bash
-  curl -X POST http://15.165.81.224:8080/api/auth/signup \
+  curl -X POST http://server-ip-address:8080/api/auth/signup \
     -H "Content-Type: application/json" \
     -d '{
       "email": "test@example.com",
@@ -1477,7 +1477,7 @@ SSH로 Lightsail 서버에 접속하여 다음 항목들을 확인합니다.
 
 - [ ] **로그인 API 테스트**
   ```bash
-  curl -X POST http://15.165.81.224:8080/api/auth/login \
+  curl -X POST http://server-ip-address:8080/api/auth/login \
     -H "Content-Type: application/json" \
     -d '{
       "email": "test@example.com",
@@ -1493,7 +1493,7 @@ SSH로 Lightsail 서버에 접속하여 다음 항목들을 확인합니다.
 
   웹 브라우저에서 접속:
   ```
-  http://15.165.81.224:8080/oauth2/authorization/kakao
+  http://server-ip-address:8080/oauth2/authorization/kakao
   ```
 
   확인 사항:
@@ -1612,7 +1612,7 @@ SSH로 Lightsail 서버에 접속하여 다음 항목들을 확인합니다.
 - [ ] **로컬 PC로 백업 파일 다운로드**
   ```bash
   # 로컬 PC에서 실행
-  scp -i ~/.ssh/your-key.pem ec2-user@15.165.81.224:~/backups/mysql_backup_*.sql ./
+  scp -i ~/.ssh/your-key.pem ec2-user@server-ip-address:~/backups/mysql_backup_*.sql ./
   ```
 
 ---

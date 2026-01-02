@@ -24,7 +24,7 @@ export API_URL="http://localhost:9080"
 ### 프로덕션 환경
 ```bash
 # 프로덕션 서버 URL
-export API_URL="http://15.165.81.224:8080"
+export API_URL="http://server-ip-address:8080"
 ```
 
 ---
@@ -283,7 +283,7 @@ curl -X POST "${API_URL}/logout" \
 open "http://localhost:9080/auth/kakao/login"
 
 # 프로덕션 환경
-open "http://15.165.81.224:8080/auth/kakao/login"
+open "http://server-ip-address:8080/auth/kakao/login"
 ```
 
 또는 curl로 리다이렉트 URL을 확인:
