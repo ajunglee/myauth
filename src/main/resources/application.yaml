@@ -55,3 +55,17 @@ spring:
         # Hibernate가 DB에 날짜/시간을 저장할 때 사용할 타임존 (한국 시간)
         jdbc:
           time_zone: Asia/Seoul
+
+  # 파일 업로드 설정
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB          # 업로드 가능한 최대 파일 크기
+      max-request-size: 10MB       # 전체 요청의 최대 크기
+      file-size-threshold: 2KB     # 메모리에 저장할 임계값
+
+# 파일 저장 경로 설정 (커스텀)
+file:
+  upload:
+    dir: ${FILE_UPLOAD_DIR:./uploads}                           # 파일 저장 디렉토리
+    base-url: ${FILE_UPLOAD_BASE_URL:http://localhost:9080/uploads}  # 파일 접근 URL

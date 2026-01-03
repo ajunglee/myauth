@@ -28,6 +28,10 @@ services:
     ports:
       - "9080:9080"
 
+    # 파일 업로드 저장소 (Named Volume)
+    volumes:
+      - upload-data:/app/uploads
+
     # 환경 변수 설정
     environment:
       # 데이터베이스 연결 설정
@@ -45,6 +49,10 @@ services:
       KAKAO_CLIENT_ID: f0bfa98dfa477735feeb8dbfdfa1d105
       KAKAO_CLIENT_SECRET: U4JgTAZGirCvVGmmnvuSlsoWlKFPstvV
       KAKAO_REDIRECT_URI: http://localhost:9080/auth/kakao/callback
+
+      # 파일 업로드 설정
+      FILE_UPLOAD_DIR: /app/uploads
+      FILE_UPLOAD_BASE_URL: http://16.184.53.118:8080/uploads
 
       # Spring 프로파일 (개발 환경)
       SPRING_PROFILES_ACTIVE: dev
@@ -65,6 +73,16 @@ networks:
   myauth-network:
     driver: bridge
     name: myauth-network
+
+# ========================================
+# 볼륨 정의
+# ========================================
+volumes:
+  # 파일 업로드 저장소 (Named Volume)
+  # 컨테이너를 삭제해도 데이터가 유지됨
+  upload-data:
+    driver: local
+    name: myauth-upload-data
 
 # ================================================
 # 사용 방법

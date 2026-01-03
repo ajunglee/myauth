@@ -1,13 +1,15 @@
 package com.example.myauth.controller;
 
 import com.example.myauth.dto.ApiResponse;
+import com.example.myauth.dto.UserProfileUpdateRequest;
+import com.example.myauth.dto.UserProfileUpdateResponse;
 import com.example.myauth.entity.User;
+import com.example.myauth.service.UserService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,8 +19,11 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/api/user")  // API 일관성을 위해 /api 접두사 추가
+@RequiredArgsConstructor
 public class UserController {
+
+  private final UserService userService;
 
   /**
    * 현재 로그인한 사용자 정보 조회
@@ -50,5 +55,32 @@ public class UserController {
         ApiResponse.success("사용자 정보 조회 성공", userInfo);
 
     return ResponseEntity.ok(response);
+  }
+
+  /**
+   * 사용자 프로필 정보 수정
+   * User 테이블과 UserProfile 테이블의 정보를 동시에 수정
+   *
+   * @param user 현재 로그인한 사용자 (JWT 토큰에서 추출됨)
+   * @param request 프로필 수정 요청 DTO
+   * @return 수정된 프로필 정보를 포함한 ApiResponse
+   */
+  @PutMapping("/profile")
+  public ResponseEntity<ApiResponse<UserProfileUpdateResponse>> updateProfile(
+      @AuthenticationPrincipal User user,
+      @RequestBody UserProfileUpdateRequest request
+  ) {
+    log.info("사용자 프로필 수정 요청: userId={}, email={}", user.getId(), user.getEmail());
+
+    // UserService를 통해 프로필 수정
+    UserProfileUpdateResponse response = userService.updateUserProfile(user.getId(), request);
+
+    log.info("사용자 프로필 수정 완료: userId={}", user.getId());
+
+    // 응답 생성
+    ApiResponse<UserProfileUpdateResponse> apiResponse =
+        ApiResponse.success("프로필이 성공적으로 수정되었습니다.", response);
+
+    return ResponseEntity.ok(apiResponse);
   }
 }
