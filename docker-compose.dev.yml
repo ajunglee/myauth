@@ -22,7 +22,7 @@ services:
       context: .
       dockerfile: Dockerfile
 
-    container_name: myauth-backend-dev
+    container_name: myauth
 
     # 호스트의 9080 포트와 연결 (외부 접근용)
     ports:

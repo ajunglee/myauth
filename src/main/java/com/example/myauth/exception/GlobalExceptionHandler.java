@@ -82,6 +82,42 @@ public class GlobalExceptionHandler {
         .status(HttpStatus.BAD_REQUEST)
         .body(ApiResponse.error(ex.getMessage()));
   }
+
+  /**
+   * 파일 저장/삭제 실패 예외 처리
+   * 파일 시스템 관련 IO 오류 발생 시
+   */
+  @ExceptionHandler(FileStorageException.class)
+  @SuppressWarnings("NullableProblems")
+  public ResponseEntity<ApiResponse<Void>> handleFileStorageException(
+      FileStorageException ex) {
+    log.error("파일 저장 오류: {}", ex.getMessage(), ex);
+
+    return ResponseEntity
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(ApiResponse.error(ex.getMessage()));
+  }
+
+  /**
+   * 파일 유효성 검사 실패 예외 처리
+   * 파일이 비어있거나, 크기 초과, 지원하지 않는 형식 등
+   */
+  @ExceptionHandler(InvalidFileException.class)
+  @SuppressWarnings("NullableProblems")
+  public ResponseEntity<ApiResponse<Void>> handleInvalidFileException(
+      InvalidFileException ex) {
+    log.warn("파일 유효성 검사 실패 [{}]: {}", ex.getErrorCode(), ex.getMessage());
+
+    // 에러 코드에 따른 HTTP 상태 코드 결정
+    HttpStatus status = switch (ex.getErrorCode()) {
+      case EMPTY_FILE, FILE_TOO_LARGE, UNSUPPORTED_TYPE, INVALID_FILENAME -> HttpStatus.BAD_REQUEST;
+      case INVALID_PATH -> HttpStatus.FORBIDDEN;  // 경로 조작 시도는 403
+    };
+
+    return ResponseEntity
+        .status(status)
+        .body(ApiResponse.error(ex.getMessage()));
+  }
   /**
    * Bean Validation 검증 실패 시 처리
    * Controller에서 @Valid 어노테이션으로 검증 실패한 경우 발생하는 예외를 처리한다

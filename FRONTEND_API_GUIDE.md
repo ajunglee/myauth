@@ -7,8 +7,10 @@
 1. [기본 정보](#기본-정보)
 2. [인증 방식](#인증-방식)
 3. [API 엔드포인트](#api-엔드포인트)
-4. [프론트엔드 구현 가이드](#프론트엔드-구현-가이드)
-5. [에러 처리](#에러-처리)
+4. [사용자 프로필 API](#사용자-프로필-api)
+5. [이미지 업로드 API](#이미지-업로드-api)
+6. [프론트엔드 구현 가이드](#프론트엔드-구현-가이드)
+7. [에러 처리](#에러-처리)
 
 ---
 
@@ -328,6 +330,215 @@ Authorization: Bearer {accessToken}
 
 ---
 
+## 사용자 프로필 API
+
+### 8. 사용자 정보 조회
+
+현재 로그인한 사용자의 기본 정보 조회
+
+```http
+GET /api/user/me
+Authorization: Bearer {accessToken}
+```
+
+**응답 200 OK**
+```json
+{
+  "success": true,
+  "message": "사용자 정보 조회 성공",
+  "data": {
+    "id": 1,
+    "email": "user@example.com",
+    "name": "홍길동",
+    "profileImage": "http://localhost:9080/uploads/abc-123.jpg",
+    "provider": null,
+    "role": "ROLE_USER",
+    "status": "ACTIVE",
+    "isActive": true,
+    "createdAt": "2025-01-15T10:30:00"
+  }
+}
+```
+
+---
+
+### 9. 프로필 조회
+
+사용자의 상세 프로필 정보 조회 (User + UserProfile 테이블)
+
+```http
+GET /api/user/profile
+Authorization: Bearer {accessToken}
+```
+
+**응답 200 OK**
+```json
+{
+  "success": true,
+  "message": "프로필 조회 성공",
+  "data": {
+    "userId": 1,
+    "email": "user@example.com",
+    "name": "홍길동",
+    "profileImage": "http://localhost:9080/uploads/abc-123.jpg",
+    "provider": null,
+    "profileId": 1,
+    "lastName": "홍",
+    "firstName": "길동",
+    "phoneNumber": "010-1234-5678",
+    "country": 82,
+    "address1": "서울특별시 강남구",
+    "address2": "테헤란로 123",
+    "birth": "1990-05-15T00:00:00",
+    "bgImage": "http://localhost:9080/uploads/bg-456.jpg",
+    "createdAt": "2025-01-15T10:30:00",
+    "updatedAt": "2025-01-20T14:20:00"
+  }
+}
+```
+
+---
+
+### 10. 프로필 수정
+
+사용자 프로필 정보 수정 (User + UserProfile 테이블 동시 수정)
+
+```http
+PUT /api/user/profile
+Authorization: Bearer {accessToken}
+Content-Type: application/json
+```
+
+**요청 바디**
+```json
+{
+  "name": "홍길동",
+  "profileImage": "http://localhost:9080/uploads/new-profile.jpg",
+  "lastName": "홍",
+  "firstName": "길동",
+  "phoneNumber": "010-9876-5432",
+  "country": 82,
+  "address1": "서울특별시 서초구",
+  "address2": "반포대로 456",
+  "birth": "1990-05-15T00:00:00",
+  "bgImage": "http://localhost:9080/uploads/new-bg.jpg"
+}
+```
+
+> **참고**: 모든 필드는 선택사항입니다. 변경하고 싶은 필드만 전송하면 됩니다.
+
+**응답 200 OK**
+```json
+{
+  "success": true,
+  "message": "프로필이 성공적으로 수정되었습니다.",
+  "data": {
+    "userId": 1,
+    "email": "user@example.com",
+    "name": "홍길동",
+    "profileImage": "http://localhost:9080/uploads/new-profile.jpg",
+    "provider": null,
+    "profileId": 1,
+    "lastName": "홍",
+    "firstName": "길동",
+    "phoneNumber": "010-9876-5432",
+    "country": 82,
+    "address1": "서울특별시 서초구",
+    "address2": "반포대로 456",
+    "birth": "1990-05-15T00:00:00",
+    "bgImage": "http://localhost:9080/uploads/new-bg.jpg",
+    "createdAt": "2025-01-15T10:30:00",
+    "updatedAt": "2025-01-24T09:15:00"
+  }
+}
+```
+
+---
+
+## 이미지 업로드 API
+
+### 11. 이미지 업로드
+
+프로필 이미지, 배경 이미지 등 이미지 파일 업로드
+
+```http
+POST /api/upload/image
+Authorization: Bearer {accessToken}
+Content-Type: multipart/form-data
+```
+
+**요청 (form-data)**
+| Key | Type | 설명 |
+|-----|------|------|
+| file | File | 업로드할 이미지 파일 |
+
+**지원 형식**
+- JPEG, JPG, PNG, GIF, WEBP
+- 최대 10MB
+
+**응답 200 OK**
+```json
+{
+  "success": true,
+  "message": "이미지가 성공적으로 업로드되었습니다.",
+  "data": {
+    "imageUrl": "http://localhost:9080/uploads/550e8400-e29b-41d4-a716-446655440000.jpg",
+    "fileName": "550e8400-e29b-41d4-a716-446655440000.jpg",
+    "originalFileName": "my-photo.jpg",
+    "fileSize": 245678,
+    "contentType": "image/jpeg"
+  }
+}
+```
+
+**에러 응답 400 Bad Request**
+```json
+{
+  "success": false,
+  "message": "파일 크기가 너무 큽니다. 최대 10MB까지 업로드 가능합니다."
+}
+```
+
+```json
+{
+  "success": false,
+  "message": "지원하지 않는 파일 형식입니다. (지원: JPEG, PNG, GIF, WEBP)"
+}
+```
+
+---
+
+### 12. 이미지 삭제
+
+업로드된 이미지 파일 삭제 (선택적)
+
+```http
+DELETE /api/upload/image/{fileName}
+Authorization: Bearer {accessToken}
+```
+
+**파라미터**
+| Name | Type | 설명 |
+|------|------|------|
+| fileName | String | 삭제할 파일명 (UUID 형식) |
+
+**예시**
+```http
+DELETE /api/upload/image/550e8400-e29b-41d4-a716-446655440000.jpg
+Authorization: Bearer {accessToken}
+```
+
+**응답 200 OK**
+```json
+{
+  "success": true,
+  "message": "이미지가 성공적으로 삭제되었습니다.",
+  "data": null
+}
+```
+
+---
+
 ## 프론트엔드 구현 가이드
 
 ### 웹 (React / Vue / Angular)
@@ -451,6 +662,188 @@ function loginWithKakao() {
 // 백엔드가 프론트엔드 콜백 URL로 리다이렉트하도록 설정
 ```
 
+#### 6. 프로필 조회
+
+```javascript
+async function getProfile() {
+  const accessToken = sessionStorage.getItem('accessToken');
+
+  const response = await fetch('http://localhost:9080/api/user/profile', {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+    },
+  });
+
+  const result = await response.json();
+
+  if (result.success) {
+    return result.data;  // 프로필 정보 반환
+  } else {
+    throw new Error(result.message);
+  }
+}
+```
+
+#### 7. 이미지 업로드
+
+```javascript
+async function uploadImage(file) {
+  const accessToken = sessionStorage.getItem('accessToken');
+
+  // FormData 객체 생성 (multipart/form-data 전송용)
+  const formData = new FormData();
+  formData.append('file', file);  // 'file'은 백엔드에서 기대하는 필드명
+
+  const response = await fetch('http://localhost:9080/api/upload/image', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      // Content-Type은 설정하지 않음! (브라우저가 자동으로 multipart/form-data 설정)
+    },
+    body: formData,
+  });
+
+  const result = await response.json();
+
+  if (result.success) {
+    return result.data;  // { imageUrl, fileName, ... }
+  } else {
+    throw new Error(result.message);
+  }
+}
+```
+
+#### 8. 프로필 수정 (이미지 포함)
+
+```javascript
+/**
+ * 프로필 이미지 변경 + 프로필 정보 수정 전체 흐름
+ */
+async function updateProfileWithImage(profileData, newProfileImage, newBgImage) {
+  const accessToken = sessionStorage.getItem('accessToken');
+
+  // 1. 새 프로필 이미지가 있으면 먼저 업로드
+  if (newProfileImage) {
+    const uploadResult = await uploadImage(newProfileImage);
+    profileData.profileImage = uploadResult.imageUrl;
+  }
+
+  // 2. 새 배경 이미지가 있으면 업로드
+  if (newBgImage) {
+    const uploadResult = await uploadImage(newBgImage);
+    profileData.bgImage = uploadResult.imageUrl;
+  }
+
+  // 3. 프로필 정보 수정 API 호출
+  const response = await fetch('http://localhost:9080/api/user/profile', {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(profileData),
+  });
+
+  const result = await response.json();
+
+  if (result.success) {
+    return result.data;  // 수정된 프로필 정보
+  } else {
+    throw new Error(result.message);
+  }
+}
+
+// 사용 예시 (React)
+function ProfileEditForm() {
+  const [profile, setProfile] = useState(null);
+  const [profileImageFile, setProfileImageFile] = useState(null);
+  const [bgImageFile, setBgImageFile] = useState(null);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const updatedProfile = await updateProfileWithImage(
+        {
+          name: profile.name,
+          lastName: profile.lastName,
+          firstName: profile.firstName,
+          phoneNumber: profile.phoneNumber,
+          // ... 기타 필드
+        },
+        profileImageFile,  // 새 프로필 이미지 (File 객체 또는 null)
+        bgImageFile        // 새 배경 이미지 (File 객체 또는 null)
+      );
+
+      alert('프로필이 수정되었습니다!');
+      setProfile(updatedProfile);
+    } catch (error) {
+      alert('오류: ' + error.message);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      {/* 프로필 이미지 선택 */}
+      <input
+        type="file"
+        accept="image/*"
+        onChange={(e) => setProfileImageFile(e.target.files[0])}
+      />
+
+      {/* 배경 이미지 선택 */}
+      <input
+        type="file"
+        accept="image/*"
+        onChange={(e) => setBgImageFile(e.target.files[0])}
+      />
+
+      {/* 기타 필드 */}
+      <input
+        type="text"
+        value={profile?.name || ''}
+        onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+      />
+
+      <button type="submit">저장</button>
+    </form>
+  );
+}
+```
+
+#### 9. 이미지 미리보기
+
+```javascript
+/**
+ * 파일 선택 시 미리보기 표시
+ */
+function ImagePreview({ file, currentImageUrl }) {
+  const [preview, setPreview] = useState(currentImageUrl);
+
+  useEffect(() => {
+    if (file) {
+      // FileReader로 로컬 파일 미리보기 생성
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setPreview(currentImageUrl);
+    }
+  }, [file, currentImageUrl]);
+
+  return (
+    <img
+      src={preview || '/default-profile.png'}
+      alt="프로필 미리보기"
+      style={{ width: 100, height: 100, borderRadius: '50%' }}
+    />
+  );
+}
+```
+
 ---
 
 ### 모바일 (React Native / Flutter)
@@ -570,6 +963,16 @@ async function login(email, password) {
 | "이메일 또는 비밀번호가 올바르지 않습니다." | 로그인 실패 | 이메일/비밀번호 확인 |
 | "인증이 필요합니다." | Access Token 없음 또는 만료 | 토큰 갱신 또는 재로그인 |
 | "유효하지 않거나 만료된 Refresh Token입니다." | Refresh Token 만료 | 재로그인 필요 |
+
+### 파일 업로드 관련 에러 메시지
+
+| 에러 메시지 | 원인 | 해결 방법 |
+|-----------|------|----------|
+| "파일이 비어있습니다." | 파일 없이 요청 | 파일 선택 후 재시도 |
+| "파일 크기가 너무 큽니다. 최대 10MB까지 업로드 가능합니다." | 10MB 초과 | 파일 크기 줄이기 |
+| "지원하지 않는 파일 형식입니다. (지원: JPEG, PNG, GIF, WEBP)" | 잘못된 파일 형식 | 이미지 파일만 선택 |
+| "잘못된 파일명입니다." | 파일명에 특수문자 포함 | 파일명 변경 후 재시도 |
+| "이미지 저장에 실패했습니다." | 서버 저장 오류 | 잠시 후 재시도 |
 
 ---
 
@@ -739,6 +1142,65 @@ A:
 
 ---
 
-**문서 작성일**: 2025-12-06
+## 프로필 이미지 변경 플로우
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                    프로필 이미지 변경 전체 흐름                       │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  1. 사용자가 새 이미지 파일 선택                                     │
+│     └─→ <input type="file" accept="image/*" />                     │
+│                                                                     │
+│  2. 이미지 미리보기 표시 (선택적)                                    │
+│     └─→ FileReader.readAsDataURL(file)                             │
+│                                                                     │
+│  3. 저장 버튼 클릭                                                   │
+│     │                                                               │
+│     ▼                                                               │
+│  ┌───────────────────────────────────────────────────────┐         │
+│  │ POST /api/upload/image                                │         │
+│  │ Content-Type: multipart/form-data                     │         │
+│  │ Authorization: Bearer {accessToken}                   │         │
+│  │ Body: FormData { file: 이미지파일 }                    │         │
+│  └───────────────────────────────────────────────────────┘         │
+│     │                                                               │
+│     ▼                                                               │
+│  응답: { imageUrl: "http://server/uploads/uuid.jpg" }              │
+│     │                                                               │
+│     ▼                                                               │
+│  ┌───────────────────────────────────────────────────────┐         │
+│  │ PUT /api/user/profile                                 │         │
+│  │ Content-Type: application/json                        │         │
+│  │ Authorization: Bearer {accessToken}                   │         │
+│  │ Body: { profileImage: "새 이미지 URL", ... }          │         │
+│  └───────────────────────────────────────────────────────┘         │
+│     │                                                               │
+│     ▼                                                               │
+│  프로필 수정 완료!                                                   │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### 주의사항
+
+1. **이미지 업로드 먼저, 프로필 수정 나중에**
+   - 이미지 업로드 API가 반환하는 `imageUrl`을 프로필 수정 요청에 포함
+
+2. **기존 이미지 삭제는 선택사항**
+   - 새 이미지 업로드 후 기존 이미지를 삭제하지 않아도 됨
+   - 필요시 `DELETE /api/upload/image/{fileName}`으로 삭제
+
+3. **Content-Type 주의**
+   - 이미지 업로드: `multipart/form-data` (직접 설정 안 함, 브라우저가 자동 처리)
+   - 프로필 수정: `application/json`
+
+4. **파일 크기 제한**
+   - 최대 10MB
+   - 클라이언트에서 미리 검증 권장
+
+---
+
+**문서 작성일**: 2025-12-06 (최종 수정: 2026-01-24)
 **백엔드 서버**: Spring Boot 4.0.0
 **인증 방식**: JWT (HS512)

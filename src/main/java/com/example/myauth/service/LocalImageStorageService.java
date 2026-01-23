@@ -1,6 +1,9 @@
 package com.example.myauth.service;
 
 import com.example.myauth.dto.ImageUploadResponse;
+import com.example.myauth.exception.FileStorageException;
+import com.example.myauth.exception.InvalidFileException;
+import com.example.myauth.exception.InvalidFileException.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
@@ -62,7 +65,7 @@ public class LocalImageStorageService implements ImageStorageService {
       log.info("이미지 업로드 디렉토리 초기화 완료: {}", this.uploadPath);
     } catch (IOException e) {
       log.error("업로드 디렉토리 생성 실패: {}", this.uploadPath, e);
-      throw new RuntimeException("업로드 디렉토리를 생성할 수 없습니다.", e);
+      throw new FileStorageException("업로드 디렉토리를 생성할 수 없습니다.", e);
     }
   }
 
@@ -107,7 +110,7 @@ public class LocalImageStorageService implements ImageStorageService {
 
     } catch (IOException e) {
       log.error("이미지 저장 실패 - 파일명: {}", originalFileName, e);
-      throw new RuntimeException("이미지 저장에 실패했습니다.", e);
+      throw new FileStorageException("이미지 저장에 실패했습니다.", e);
     }
   }
 
@@ -125,7 +128,7 @@ public class LocalImageStorageService implements ImageStorageService {
       // 보안: 업로드 디렉토리 밖의 파일 삭제 방지
       if (!filePath.startsWith(this.uploadPath)) {
         log.warn("잘못된 파일 경로로 삭제 시도: {}", fileName);
-        throw new RuntimeException("잘못된 파일 경로입니다.");
+        throw new InvalidFileException(ErrorCode.INVALID_PATH, "잘못된 파일 경로입니다.");
       }
 
       Files.deleteIfExists(filePath);
@@ -133,7 +136,7 @@ public class LocalImageStorageService implements ImageStorageService {
 
     } catch (IOException e) {
       log.error("이미지 삭제 실패 - 파일명: {}", fileName, e);
-      throw new RuntimeException("이미지 삭제에 실패했습니다.", e);
+      throw new FileStorageException("이미지 삭제에 실패했습니다.", e);
     }
   }
 
@@ -146,24 +149,26 @@ public class LocalImageStorageService implements ImageStorageService {
   private void validateFile(MultipartFile file) {
     // null 체크
     if (file == null || file.isEmpty()) {
-      throw new RuntimeException("파일이 비어있습니다.");
+      throw new InvalidFileException(ErrorCode.EMPTY_FILE, "파일이 비어있습니다.");
     }
 
     // 파일 크기 검증
     if (file.getSize() > MAX_FILE_SIZE) {
-      throw new RuntimeException("파일 크기가 너무 큽니다. 최대 10MB까지 업로드 가능합니다.");
+      throw new InvalidFileException(ErrorCode.FILE_TOO_LARGE,
+          "파일 크기가 너무 큽니다. 최대 10MB까지 업로드 가능합니다.");
     }
 
     // 파일 타입 검증
     String contentType = file.getContentType();
     if (contentType == null || !ALLOWED_IMAGE_TYPES.contains(contentType.toLowerCase())) {
-      throw new RuntimeException("지원하지 않는 파일 형식입니다. (지원: JPEG, PNG, GIF, WEBP)");
+      throw new InvalidFileException(ErrorCode.UNSUPPORTED_TYPE,
+          "지원하지 않는 파일 형식입니다. (지원: JPEG, PNG, GIF, WEBP)");
     }
 
-    // 파일명 검증
+    // 파일명 검증 (경로 조작 방지)
     String originalFileName = file.getOriginalFilename();
     if (originalFileName == null || originalFileName.contains("..")) {
-      throw new RuntimeException("잘못된 파일명입니다.");
+      throw new InvalidFileException(ErrorCode.INVALID_FILENAME, "잘못된 파일명입니다.");
     }
   }
 

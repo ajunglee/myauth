@@ -214,6 +214,16 @@ services:
       # - 기본값: prod
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
 
+      # ===== 파일 업로드 설정 =====
+      # 업로드된 파일이 저장될 컨테이너 내부 경로
+      # - 이 경로는 아래 volumes 설정과 연결되어 영구 보존됨
+      FILE_UPLOAD_DIR: /app/uploads
+
+      # 업로드된 이미지에 접근할 수 있는 외부 URL
+      # - 브라우저에서 이미지를 표시할 때 사용되는 URL
+      # - .env 파일에서 설정 (예: http://16.184.53.118:8080/uploads)
+      FILE_UPLOAD_BASE_URL: ${FILE_UPLOAD_BASE_URL}
+
     # ========================================
     # 네트워크 설정
     # ========================================
@@ -235,6 +245,14 @@ services:
         # - MySQL이 실제로 연결을 받을 수 있는 상태여야 함
         # - healthcheck에서 정의한 mysqladmin ping이 성공해야 함
         condition: service_healthy
+
+    # ========================================
+    # 볼륨 설정 (파일 업로드 영구 보존)
+    # ========================================
+    # 업로드된 이미지 파일을 영구 보존하기 위한 볼륨 연결
+    # - 컨테이너가 삭제/재생성되어도 업로드된 파일은 유지됨
+    volumes:
+      - prod-upload-data:/app/uploads
 
     # ========================================
     # 로그 설정
@@ -275,6 +293,13 @@ volumes:
     # - docker volume ls 명령으로 확인 가능
     # - 위치: /var/lib/docker/volumes/prod-mysql-data (Linux 기준)
     name: prod-mysql-data
+
+  # 업로드 파일 영구 보존용 볼륨
+  prod-upload-data:
+    driver: local
+    # - 위치: /var/lib/docker/volumes/prod-upload-data (Linux 기준)
+    # - 프로필 이미지, 배경 이미지 등 사용자가 업로드한 파일 저장
+    name: prod-upload-data
 
 # ========================================
 # 네트워크 설정
