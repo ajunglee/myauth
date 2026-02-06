@@ -211,6 +211,90 @@ public class GlobalExceptionHandler {
   }
 
   /**
+   * 사용자를 찾을 수 없을 때 예외 처리
+   */
+  @ExceptionHandler(UserNotFoundException.class)
+  @SuppressWarnings("NullableProblems")
+  public ResponseEntity<ApiResponse<Void>> handleUserNotFoundException(
+      UserNotFoundException ex) {
+    log.warn("사용자 조회 실패: {}", ex.getMessage());
+
+    return ResponseEntity
+        .status(HttpStatus.NOT_FOUND)
+        .body(ApiResponse.error(ex.getMessage()));
+  }
+
+  /**
+   * 자기 자신 팔로우 시도 예외 처리
+   */
+  @ExceptionHandler(SelfFollowException.class)
+  @SuppressWarnings("NullableProblems")
+  public ResponseEntity<ApiResponse<Void>> handleSelfFollowException(
+      SelfFollowException ex) {
+    log.warn("자기 팔로우 시도: {}", ex.getMessage());
+
+    return ResponseEntity
+        .status(HttpStatus.BAD_REQUEST)
+        .body(ApiResponse.error(ex.getMessage()));
+  }
+
+  /**
+   * 중복 팔로우 예외 처리
+   */
+  @ExceptionHandler(DuplicateFollowException.class)
+  @SuppressWarnings("NullableProblems")
+  public ResponseEntity<ApiResponse<Void>> handleDuplicateFollowException(
+      DuplicateFollowException ex) {
+    log.warn("중복 팔로우 시도: {}", ex.getMessage());
+
+    return ResponseEntity
+        .status(HttpStatus.CONFLICT)
+        .body(ApiResponse.error(ex.getMessage()));
+  }
+
+  /**
+   * 팔로우 관계 없음 예외 처리
+   */
+  @ExceptionHandler(FollowNotFoundException.class)
+  @SuppressWarnings("NullableProblems")
+  public ResponseEntity<ApiResponse<Void>> handleFollowNotFoundException(
+      FollowNotFoundException ex) {
+    log.warn("팔로우 관계 없음: {}", ex.getMessage());
+
+    return ResponseEntity
+        .status(HttpStatus.NOT_FOUND)
+        .body(ApiResponse.error(ex.getMessage()));
+  }
+
+  /**
+   * 중복 북마크 예외 처리
+   */
+  @ExceptionHandler(DuplicateBookmarkException.class)
+  @SuppressWarnings("NullableProblems")
+  public ResponseEntity<ApiResponse<Void>> handleDuplicateBookmarkException(
+      DuplicateBookmarkException ex) {
+    log.warn("중복 북마크 시도: {}", ex.getMessage());
+
+    return ResponseEntity
+        .status(HttpStatus.CONFLICT)
+        .body(ApiResponse.error(ex.getMessage()));
+  }
+
+  /**
+   * 북마크 없음 예외 처리
+   */
+  @ExceptionHandler(BookmarkNotFoundException.class)
+  @SuppressWarnings("NullableProblems")
+  public ResponseEntity<ApiResponse<Void>> handleBookmarkNotFoundException(
+      BookmarkNotFoundException ex) {
+    log.warn("북마크 없음: {}", ex.getMessage());
+
+    return ResponseEntity
+        .status(HttpStatus.NOT_FOUND)
+        .body(ApiResponse.error(ex.getMessage()));
+  }
+
+  /**
    * Bean Validation 검증 실패 시 처리
    * Controller에서 @Valid 어노테이션으로 검증 실패한 경우 발생하는 예외를 처리한다
    *
