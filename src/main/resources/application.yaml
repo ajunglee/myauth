@@ -16,7 +16,7 @@ oauth:
     # 개발: 기본값 사용, 프로덕션: 환경 변수 필수 설정
     client-id: ${KAKAO_CLIENT_ID:f0bfa98dfa477735feeb8dbfdfa1d105}
     client-secret: ${KAKAO_CLIENT_SECRET:U4JgTAZGirCvVGmmnvuSlsoWlKFPstvV}
-    redirect-uri: ${KAKAO_REDIRECT_URI:http://localhost:9080/auth/kakao/callback}
+    redirect-uri: ${KAKAO_REDIRECT_URI:http://localhost:9080/api/auth/kakao/callback}
     # 카카오 API 엔드포인트 (변경될 가능성 낮음)
     authorization-uri: https://kauth.kakao.com/oauth/authorize
     token-uri: https://kauth.kakao.com/oauth/token

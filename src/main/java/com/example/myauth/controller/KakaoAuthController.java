@@ -25,7 +25,7 @@ import java.io.IOException;
  */
 @Slf4j
 @RestController
-@RequestMapping("/auth/kakao")
+@RequestMapping("/api/auth/kakao")
 @RequiredArgsConstructor
 public class KakaoAuthController {
 
@@ -195,24 +195,37 @@ public class KakaoAuthController {
       LoginResponse loginResponse = kakaoOAuthService.processKakaoLogin(kakaoUserInfo);
       log.info("카카오 로그인 성공 - User ID: {}", loginResponse.getUser().getId());
 
-      // 5️⃣ 웹 클라이언트면 토큰을 세션에 저장하고 프론트엔드로 리다이렉트
+      // 5️⃣ 웹 클라이언트면 토큰을 URL fragment로 전달하고 프론트엔드로 리다이렉트
       if (isWebClient) {
-        log.info("웹 클라이언트 감지 → 토큰을 세션에 임시 저장하고 프론트엔드로 리다이렉트");
+        log.info("웹 클라이언트 감지 → 토큰을 URL fragment로 전달하고 프론트엔드로 리다이렉트");
 
-        // 🔒 Cross-Port 쿠키 문제 해결:
-        // OAuth callback은 localhost:9080에서 처리되지만, 쿠키를 여기서 설정하면
-        // localhost:5173의 프론트엔드에서 접근할 수 없음
-        // 따라서 토큰을 세션에 임시 저장하고, 프론트엔드가 /exchange-token을 호출하여
-        // Vite 프록시를 통해 쿠키를 받도록 변경
+        // 🔒 Cross-Port 세션 쿠키 문제 해결:
+        // 세션 쿠키는 포트가 다르면 공유되지 않으므로, 토큰을 URL fragment(#)로 전달
+        // URL fragment는 서버로 전송되지 않아 보안적으로 안전하며,
+        // 프론트엔드 JavaScript에서만 접근 가능
 
-        HttpSession sessionForToken = request.getSession(true);
-        sessionForToken.setAttribute("pendingLoginResponse", loginResponse);
-        log.info("LoginResponse를 세션에 임시 저장 완료 (세션 ID: {})", sessionForToken.getId());
+        // 사용자 정보를 URL-safe하게 인코딩
+        String userJson = String.format(
+            "{\"id\":%d,\"email\":\"%s\",\"name\":\"%s\",\"profileImage\":%s}",
+            loginResponse.getUser().getId(),
+            loginResponse.getUser().getEmail(),
+            loginResponse.getUser().getName(),
+            loginResponse.getUser().getProfileImage() != null
+                ? "\"" + loginResponse.getUser().getProfileImage() + "\""
+                : "null"
+        );
+        String encodedUser = java.net.URLEncoder.encode(userJson, "UTF-8");
 
-        // 프론트엔드로 리다이렉트 (status=success로 전달)
-        String successRedirectUrl = String.format("%s?status=success", frontendRedirectUrl);
+        // URL fragment로 토큰과 사용자 정보 전달
+        // fragment는 브라우저 히스토리에 남지 않도록 프론트엔드에서 즉시 처리 권장
+        String successRedirectUrl = String.format(
+            "%s#accessToken=%s&user=%s",
+            frontendRedirectUrl,
+            loginResponse.getAccessToken(),
+            encodedUser
+        );
 
-        log.info("프론트엔드로 리다이렉트: {}", successRedirectUrl);
+        log.info("프론트엔드로 리다이렉트 (URL fragment 사용): {}", frontendRedirectUrl);
         response.sendRedirect(successRedirectUrl);
       } else {
         // 6️⃣ 모바일 클라이언트면 JSON 응답 반환
