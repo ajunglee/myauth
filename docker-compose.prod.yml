@@ -20,7 +20,7 @@ services:
   # ========================================
   mysql:
     image: mysql:8
-    container_name: mysql
+    container_name: prod-mysql
 
     # MySQL 포트 노출 (외부 접근용 - 선택사항)
     ports:
