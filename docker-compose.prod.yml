@@ -37,19 +37,12 @@ services:
       MYSQL_USER: ${DB_USERNAME}
       MYSQL_PASSWORD: ${DB_PASSWORD}
 
-
       # 시간대 설정
       TZ: Asia/Seoul
 
     # Docker 네임드 볼륨 사용 (데이터 영구 보존)
     volumes:
       - prod-mysql-data:/var/lib/mysql
-
-  myauth:
-    depends_on:
-      - mysql
-    environment:
-      DB_URL: jdbc:mysql://mysql:3306/emma
 
     # 독립적인 네트워크에 연결
     networks:
