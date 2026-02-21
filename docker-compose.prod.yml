@@ -34,6 +34,9 @@ services:
       # ⚠️ 다른 프로젝트에서 사용 시 .env 파일에서 DB_NAME 설정
       MYSQL_DATABASE: ${DB_NAME:-emma}
 
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+
       # 시간대 설정
       TZ: Asia/Seoul
 
